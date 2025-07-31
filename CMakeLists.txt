@@ -4,6 +4,7 @@ project(MapperScript LANGUAGES CXX)
 # Platform-specific flags
 option(PLATFORM_LINUX "Set if building for Linux" OFF)
 option(PLATFORM_WINDOWS "Set if building for Windows" OFF)
+option(PLATFORM_OSX "set if building on osx" OFF)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Detected Linux OS")
@@ -11,6 +12,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Detected Windows OS")
     set(PLATFORM_WINDOWS ON)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    message(STATUS "why are you using a mac you loser")
+    set(PLATFORM_OSX ON)
 endif()
 
 # Set C++ standard
@@ -25,6 +29,7 @@ include_directories(
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/vendored/lua/include
         ${CMAKE_SOURCE_DIR}/vendored/linux_lua/include
+        ${CMAKE_SOURCE_DIR}/vendored/osx_lua/include
         ${CMAKE_SOURCE_DIR}/vendored/sol2/include
 )
 
@@ -33,6 +38,8 @@ if(PLATFORM_WINDOWS EQUAL ON)
     link_directories(${CMAKE_SOURCE_DIR}/vendored/lua)
 elseif(PLATFORM_LINUX EQUAL ON)
     link_directories(${CMAKE_SOURCE_DIR}/vendored/linux_lua)
+elseif(PLATFORM_OSX EQUAL ON)
+    link_directories(${CMAKE_SOURCE_DIR}/vendored/osx_lua)
 endif()
 
 # --- Executable ---
@@ -44,6 +51,8 @@ if(PLATFORM_LINUX)
     target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/vendored/linux_lua/liblua54.a")
 elseif(PLATFORM_WINDOWS)
     target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/vendored/lua/liblua54.a")
+elseif(PLATFORM_OSX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/vendored/osx_lua/liblua.a")
 endif()
 
 # --- Copy DLL for Windows builds (if dynamic) ---
