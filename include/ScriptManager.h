@@ -15,8 +15,9 @@
 #include <functional>
 #include <nlohmann/json.hpp> // For JSON config serialization
 #include <optional>
+#include <thread>
 
-namespace fs = std::filesystem;
+
 using json = nlohmann::json;
 
 class ScriptManager {
@@ -26,40 +27,54 @@ public:
         SUCCESS,
         FAILURE// just in case we need fail types for error handling, for now idfk
     };
+    enum class SMLoadResult
+    {
+        FILE_LOAD_ERROR,
+        FILE_LOAD_SUCCESS,
+        FILE_ALREADY_LOADED,
+        TS_PMO
+
+    };
+
 
     SMInitResult init();
 
 
     // Loads a Lua script from the given path and keeps it ready to run
-    bool load_script(const fs::path& path);
+    SMLoadResult load_script(const std::filesystem::path& path);
 
     // Executes a loaded script by its path (only one runs at a time)
-    bool run_script(const fs::path& path);
+    std::thread run_script(const std::filesystem::path& path);
 
     // Saves loaded script paths to disk so they can be restored later
-    bool save_loaded_scripts(const fs::path& json_out_path) const;
+    bool save_loaded_scripts(const std::filesystem::path& json_out_path = "scripts.json") const;
 
     // Loads previously saved script paths and loads them into memory
-    bool restore_scripts_from_json(const fs::path& json_in_path);
+    bool restore_scripts_from_json(const std::filesystem::path& json_in_path = "scripts.json");
 
     // Updates watched files and reloads any that have changed
-    void poll_file_watchers();
+    void start_watcher_thread();
+
+    void stop_watcher_thread();
 
     // Access to the Lua state for advanced usage if needed
-    sol::state& lua_state();
+    const sol::state& lua_state();
 
 
 private:
 
 
     // Internal helper to reload a single script
-    bool reload_script(const fs::path& path);
+    bool reload_script(const std::filesystem::path& path);
 
-
+    std::atomic_bool HotReload_StopRequested = false;
     bool Exec_running = false;
     sol::state lua_; // The main Lua state
-    std::unique_ptr<std::unordered_map<fs::path, sol::load_result>> loaded_scripts_; // Loaded script cache
-    std::unordered_map<fs::path, std::filesystem::file_time_type> file_watch_times_; // Hot reload tracking
+
+
+
+    std::unordered_map<std::filesystem::path, sol::load_result> loaded_scripts_; // Loaded script cache
+    std::unordered_map<std::filesystem::path, std::filesystem::file_time_type> file_watch_times_; // Hot reload tracking
 };
 
 
