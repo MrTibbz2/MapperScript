@@ -13,7 +13,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     message(STATUS "Detected Windows OS")
     set(PLATFORM_WINDOWS ON)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    message(STATUS "why are you using a mac you loser")
+    message(STATUS "ERROR: MAC DETECTED. INSTALLING MALWARE...")
     set(PLATFORM_OSX ON)
 endif()
 
@@ -63,5 +63,9 @@ if(WIN32)
             $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 endif()
 
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/scripts" "${CMAKE_CURRENT_BINARY_DIR}/scripts")
 # --- Sol2 compile flags ---
 target_compile_definitions(${PROJECT_NAME} PRIVATE SOL_ALL_SAFETIES_ON=1)

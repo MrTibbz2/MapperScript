@@ -13,6 +13,7 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <future>
 #include <nlohmann/json.hpp> // For JSON config serialization
 #include <optional>
 #include <thread>
@@ -44,7 +45,7 @@ public:
     SMLoadResult load_script(const std::filesystem::path& path);
 
     // Executes a loaded script by its path (only one runs at a time)
-    std::thread run_script(const std::filesystem::path& path);
+    std::future<void> run_script(const std::filesystem::path& path);
 
     // Saves loaded script paths to disk so they can be restored later
     bool save_loaded_scripts(const std::filesystem::path& json_out_path = "scripts.json") const;
@@ -73,7 +74,7 @@ private:
 
 
 
-    std::unordered_map<std::filesystem::path, sol::load_result> loaded_scripts_; // Loaded script cache
+        std::unordered_map<std::filesystem::path, sol::load_result> loaded_scripts_; // Loaded script cache
     std::unordered_map<std::filesystem::path, std::filesystem::file_time_type> file_watch_times_; // Hot reload tracking
 };
 

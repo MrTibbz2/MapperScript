@@ -1,12 +1,14 @@
-
-
-
-
 #include "ScriptManager.h"
 #include <iostream>
 #include <format>
 #include <string_view>
+#include <fstream> // For std::ifstream and std::ofstream
+#include <iomanip> // For std::setw
+#include <functional> // For std::ref
+#include <nlohmann/json.hpp> // For JSON config serialization
+#include <future> // For std::async and std::future
 
+namespace fs = std::filesystem; // Alias for std::filesystem
 
 
 ScriptManager::SMInitResult ScriptManager::init()
@@ -23,7 +25,7 @@ ScriptManager::SMInitResult ScriptManager::init()
 };
 
 // Loads a Lua script from the given path and keeps it ready to run
-ScriptManager::SMLoadResult ScriptManager::load_script(const std::filesystem::path& path)
+ScriptManager::SMLoadResult ScriptManager::load_script(const fs::path& path)
 {
     // Check early if script is already loaded
     if (loaded_scripts_.contains(path)) {
@@ -64,24 +66,93 @@ ScriptManager::SMLoadResult ScriptManager::load_script(const std::filesystem::pa
 
 
 // Executes a loaded script by its path (only one runs at a time)
-std::thread ScriptManager::run_script(const std::filesystem::path& path)
+std::future<void> ScriptManager::run_script(const fs::path& path)
 {
+    if (Exec_running) {
+        std::cerr << "A script is already running. Only one script can run at a time.\n";
+        return std::future<void>(); // Return an invalid future
+    }
 
+    auto it = loaded_scripts_.find(path);
+    if (it == loaded_scripts_.end()) {
+        std::cerr << "Script not loaded: " << path << "\n";
+        return std::future<void>(); // Return an invalid future
+    }
 
-};
+    Exec_running = true;
+    // Capture the sol::load_result by value to ensure it's valid in the new thread
+    return std::async(std::launch::async, [this, script_to_run = std::move(it->second)]() mutable {
+        try {
+            // Execute the loaded script
+            sol::protected_function_result result = script_to_run();
+            if (!result.valid()) {
+                sol::error err = result;
+                std::cerr << "Lua script execution error: " << err.what() << "\n";
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Exception during script execution: " << e.what() << "\n";
+        }
+        Exec_running = false;
+    });
+}
 
 // Saves loaded script paths to disk so they can be restored later
-bool ScriptManager::save_loaded_scripts(const std::filesystem::path& json_out_path) const//idk what the end const does, jetbrains thought it'd be cool
+bool ScriptManager::save_loaded_scripts(const fs::path& json_out_path) const
 {
+    nlohmann::json j;
 
+    for (const auto& pair : loaded_scripts_) {
+        j["scripts"].push_back(pair.first.string());
+    }
 
-};
+    try {
+        std::ofstream o(json_out_path);
+        if (!o.is_open()) {
+            std::cerr << "Error opening file for writing: " << json_out_path << "\n";
+            return false;
+        }
+        o << std::setw(4) << j << std::endl;
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Error saving loaded scripts to " << json_out_path << ": " << e.what() << "\n";
+        return false;
+    }
+}
 
 // Loads previously saved script paths and loads them into memory
-bool ScriptManager::restore_scripts_from_json(const std::filesystem::path& json_in_path)
+bool ScriptManager::restore_scripts_from_json(const fs::path& json_in_path)
 {
+    try {
+        std::ifstream i(json_in_path);
+        if (!i.is_open()) {
+            std::cerr << "Error opening JSON file: " << json_in_path << "\n";
+            return false;
+        }
+        nlohmann::json j;
+        i >> j;
 
-};
+        if (j.contains("scripts") && j["scripts"].is_array()) {
+            bool all_successful = true;
+            for (const auto& script_path_str : j["scripts"]) {
+                if (script_path_str.is_string()) {
+                    fs::path script_path = script_path_str.get<std::string>();
+                    SMLoadResult result = load_script(script_path);
+                    if (result != SMLoadResult::FILE_LOAD_SUCCESS && result != SMLoadResult::FILE_ALREADY_LOADED) {
+                        std::cerr << "Failed to load script from JSON: " << script_path << "\n";
+                        all_successful = false;
+                    }
+                }
+            }
+            return all_successful;
+        } else {
+            std::cerr << "JSON file does not contain a 'scripts' array: " << json_in_path << "\n";
+            return false;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error restoring scripts from " << json_in_path << ": " << e.what() << "\n";
+        return false;
+    }
+}
 
 // Updates watched files and reloads any that have changed
 void ScriptManager::start_watcher_thread()
@@ -91,7 +162,7 @@ void ScriptManager::start_watcher_thread()
     {
         while (!HotReload_StopRequested)
         {
-            for (const auto& [path, time] : file_watch_times_)
+            for (const auto& [path, time] : file_watch_times_) 
             {
                 if (time != std::filesystem::last_write_time(path))
                 {
@@ -119,7 +190,7 @@ const sol::state& ScriptManager::lua_state()
 
 
 // Internal helper to reload a single script
-bool ScriptManager::reload_script(const std::filesystem::path& path) {
+bool ScriptManager::reload_script(const fs::path& path) {
     if (!loaded_scripts_.contains(path)) {
         return false;  // Can't reload something that's not loaded
     }
@@ -142,5 +213,3 @@ bool ScriptManager::reload_script(const std::filesystem::path& path) {
         return false;
     }
 }
-
-
