@@ -16,7 +16,7 @@ int main() {
     std::future Script_Exec = ScriptMgr.run_script(testScriptPath);
     while (true)
     {
-        ScriptMgr.print_fileTimes();
+        //ScriptMgr.print_fileTimes();
         std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 

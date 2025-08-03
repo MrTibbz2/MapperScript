@@ -232,6 +232,10 @@ bool ScriptManager::reload_script(const fs::path& path) {
 
         loaded_scripts_.erase(path);
         loaded_scripts_.emplace(path, std::move(script));
+
+        file_watch_times_.erase(path);
+        file_watch_times_.emplace(path, std::filesystem::last_write_time(path));
+
         return true;
 
     } catch (const std::exception& e) {
