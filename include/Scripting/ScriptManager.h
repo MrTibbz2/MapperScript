@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Lachlan McKenna
+// Copyright (c) 2025 Lachlan McKenna - MapperEngine
 // All rights reserved. No part of this code may be used, copied, or distributed without permission.
 
 
@@ -14,7 +14,7 @@
 #include <memory>
 #include <functional>
 #include <future>
-#include <nlohmann/json.hpp> // For JSON config serialization
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <thread>
 #include <chrono>

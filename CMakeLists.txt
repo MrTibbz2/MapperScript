@@ -34,6 +34,7 @@ include_directories(
         ${CMAKE_SOURCE_DIR}/vendored/linux_lua/include
         ${CMAKE_SOURCE_DIR}/vendored/osx_lua/include
         ${CMAKE_SOURCE_DIR}/vendored/sol2/include
+        ${CMAKE_SOURCE_DIR}/vendored/dynalo/include
 )
 
 # --- Link library directory ---
@@ -52,6 +53,7 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 if(PLATFORM_LINUX)
     # Link directly to the static library (without using -l flag)
     target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/vendored/linux_lua/liblua54.a")
+    target_link_libraries(${PROJECT_NAME} PRIVATE dl)
 elseif(PLATFORM_WINDOWS)
     target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/vendored/lua/liblua54.a")
 elseif(PLATFORM_OSX)
