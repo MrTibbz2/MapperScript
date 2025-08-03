@@ -188,19 +188,38 @@ void ScriptManager::start_watcher_thread()
     {
         while (!HotReload_StopRequested)
         {
-            for (const auto& [path, time] : file_watch_times_) 
+            std::vector<fs::path> changed_scripts;
+
+            // First pass: check which files changed
+            for (const auto& [path, time] : file_watch_times_)
             {
-                if (time != std::filesystem::last_write_time(path))
-                {
-                    std::cout << "Script at " << path << " has been modified. reloading...";
-                    reload_script(path);
+                try {
+                    auto current_time = std::filesystem::last_write_time(path);
+                    if (time != current_time)
+                    {
+                        changed_scripts.push_back(path);
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "Error checking file time for " << path << ": " << e.what() << "\n";
                 }
             }
+
+            // Second pass: reload changed files and update watch times
+            for (const auto& path : changed_scripts)
+            {
+                std::cout << "Script at " << path << " has been modified. Reloading...\n";
+                if (reload_script(path))
+                {
+                    file_watch_times_[path] = std::filesystem::last_write_time(path);
+                }
+            }
+
             std::this_thread::sleep_for(std::chrono::milliseconds(750));
         }
+
         std::cout << "Watcher Thread Stopped\n";
     }).detach();
-};
+}
 
 void ScriptManager::stop_watcher_thread(){ HotReload_StopRequested = true; }
 
@@ -233,8 +252,8 @@ bool ScriptManager::reload_script(const fs::path& path) {
         loaded_scripts_.erase(path);
         loaded_scripts_.emplace(path, std::move(script));
 
-        file_watch_times_.erase(path);
-        file_watch_times_.emplace(path, std::filesystem::last_write_time(path));
+        // file_watch_times_.erase(path);
+        // file_watch_times_.emplace(path, std::filesystem::last_write_time(path)); causes segfault.
 
         return true;
 
