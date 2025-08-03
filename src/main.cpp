@@ -13,6 +13,11 @@ int main() {
     ScriptMgr.load_script(testScriptPath);
 
     std::future Script_Exec = ScriptMgr.run_script(testScriptPath);
+
+    PluginManager PluginMgr;
+
+    PluginMgr.loadPluginsFromDir("plugins");
+
     while (true)
     {
         //ScriptMgr.print_fileTimes();

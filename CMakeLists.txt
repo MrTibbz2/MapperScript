@@ -74,3 +74,5 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         "${CMAKE_SOURCE_DIR}/scripts" "${CMAKE_CURRENT_BINARY_DIR}/scripts")
 # --- Sol2 compile flags ---
 target_compile_definitions(${PROJECT_NAME} PRIVATE SOL_ALL_SAFETIES_ON=1)
+
+add_subdirectory(plugins/test_plugin)

@@ -60,6 +60,14 @@ class PluginManager
 public:
     struct pluginContext
     {
+        // This binds a C++ function to Lua, scoped to this plugin
+        template<typename Func>
+        void bindFunction(const std::string& name, Func&& func) {
+            if (!lua) {
+                throw std::runtime_error("Lua state not set in pluginContext");
+            }
+            lua->set_function(name, std::forward<Func>(func));
+        }
 
 
     };
@@ -78,7 +86,7 @@ public:
         fs::path folder_path;
         fs::path lib_path;
         fs::path luaScript_path;
-        dynalo::library lib;
+        std::optional<dynalo::library> lib;
         PluginAPI api;
 
         plugin() = delete; // 👈 allow default construction
@@ -90,13 +98,33 @@ public:
               folder_path(folder),
               lib_path(""),
               luaScript_path(""),
-              lib() // 👈 initialize dynalo::library (empty handle)
+              lib(std::nullopt) // 👈 initialize dynalo::library (empty handle)
         {}
     };
 
 
 
     bool loadPlugin(const fs::path& pluginDir);
+
+    void loadPluginsFromDir(const fs::path& plugin_dir) {
+        if (!fs::exists(plugin_dir) || !fs::is_directory(plugin_dir)) {
+            std::cerr << "[PluginLoader] Plugin directory not found: " << plugin_dir << "\n";
+            return;
+        }
+
+        for (const auto& entry : fs::directory_iterator(plugin_dir)) {
+            if (!entry.is_directory())
+                continue;
+
+            const fs::path& folder = entry.path();
+            try {
+                loadPlugin(folder); // assumes this exists and returns a plugin object
+                std::cout << "[PluginLoader] Loaded plugin from " << folder << "\n";
+            } catch (const std::exception& e) {
+                std::cerr << "[PluginLoader] Failed to load plugin in " << folder << ": " << e.what() << "\n";
+            }
+        }
+    }
 
 
 

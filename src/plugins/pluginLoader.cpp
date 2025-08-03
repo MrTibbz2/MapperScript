@@ -58,7 +58,7 @@ bool PluginManager::loadPlugin(const fs::path& pluginDir) {
     // Helper lambda to load a function pointer from the library
     auto loadPluginFunction = [&](const char* funcName) -> std::optional<pluginFunc> {
         try {
-            auto rawFunc = newPlugin.lib.get_function<int(pluginContext&)>(funcName);
+            auto rawFunc = newPlugin.lib->get_function<int(pluginContext&)>(funcName);
             return pluginFunc{ [rawFunc](pluginContext& ctx) { return rawFunc(ctx); } };
         } catch (...) {
             return std::nullopt;
