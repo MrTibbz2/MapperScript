@@ -3,6 +3,8 @@
 
 
 #include "ScriptManager.h"
+
+#include <chrono>
 #include <iostream>
 #include <format>
 #include <string_view>
@@ -13,6 +15,25 @@
 #include <future> // For std::async and std::future
 
 namespace fs = std::filesystem; // Alias for std::filesystem
+std::string FileTimeTypeToString(const std::filesystem::file_time_type& ftime) {
+    // Convert file_time_type to system_clock::time_point (C++20)
+    auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+
+    // Convert to time_t for formatting
+    std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+
+    // Convert to tm structure
+    std::tm* timeinfo = std::localtime(&cftime);
+
+    // Format time to string
+    std::ostringstream oss;
+    if (timeinfo) {
+        oss << std::put_time(timeinfo, "%Y-%m-%d %H:%M:%S");
+        return oss.str();
+    } else {
+        return "Invalid Time";
+    }
+}
 
 
 ScriptManager::SMInitResult ScriptManager::init()
@@ -52,6 +73,7 @@ ScriptManager::SMLoadResult ScriptManager::load_script(const fs::path& path)
         try {
             auto last_write = std::filesystem::last_write_time(path);
             file_watch_times_.insert({path, last_write});
+            std::cout << "last write at: " << last_write;
         } catch (const std::filesystem::filesystem_error& e) {
             std::cerr << "Filesystem error for " << path << ": " << e.what() << "\n";
             return SMLoadResult::FILE_LOAD_ERROR;

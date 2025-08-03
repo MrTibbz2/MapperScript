@@ -17,6 +17,7 @@
 #include <nlohmann/json.hpp> // For JSON config serialization
 #include <optional>
 #include <thread>
+#include <chrono>
 
 
 using json = nlohmann::json;
@@ -61,6 +62,13 @@ public:
     // Access to the Lua state for advanced usage if needed
     const sol::state& lua_state();
 
+    void print_fileTimes()
+    {
+        std::cout << "file count: " << file_watch_times_.size() << "\n";
+        std::cout << "times: " << file_watch_times_.begin()->first << "\n";
+        std::cout << "paths: " << file_watch_times_.begin()->second << "\n";
+
+    }
 
 private:
 
@@ -74,7 +82,7 @@ private:
 
 
 
-        std::unordered_map<std::filesystem::path, sol::load_result> loaded_scripts_; // Loaded script cache
+    std::unordered_map<std::filesystem::path, sol::load_result> loaded_scripts_; // Loaded script cache
     std::unordered_map<std::filesystem::path, std::filesystem::file_time_type> file_watch_times_; // Hot reload tracking
 };
 
