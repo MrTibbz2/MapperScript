@@ -1,5 +1,7 @@
 
-
+// Copyright (c) 2025 Lachlan McKenna - MapperEngine
+// All rights reserved. No part of this code may be used, copied, or distributed without permission.
+// /src/plugins/pluginLoader.h
 
 #include "plugins/PluginManager.h"
 
@@ -81,7 +83,7 @@ bool PluginManager::loadPlugin(const fs::path& pluginDir) {
     if (newPlugin.api.pluginInit.second) {
         int initResult = 0;
         try {
-            pluginContext newCtx;
+            pluginContext newCtx(sm);
             initResult = newPlugin.api.pluginInit.second(newCtx);
         } catch (const std::exception& e) {
             std::cerr << "Exception thrown during pluginInit: " << e.what() << '\n';

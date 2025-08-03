@@ -62,6 +62,8 @@ public:
     // Access to the Lua state for advanced usage if needed
     const sol::state& lua_state();
 
+    void bind_function(const std::string& name, std::function<int(int, int)> func);
+
     void print_fileTimes()
     {
         std::cout << "file count: " << file_watch_times_.size() << "\n";

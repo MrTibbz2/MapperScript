@@ -1,7 +1,6 @@
 // Copyright (c) 2025 Lachlan McKenna
 // All rights reserved. No part of this code may be used, copied, or distributed without permission.
-
-
+// /src/scripting/scriptManager.cpp
 #include "Scripting/ScriptManager.h"
 
 #include <chrono>
@@ -40,7 +39,7 @@ ScriptManager::SMInitResult ScriptManager::init()
 {
     try
     {
-        lua_.open_libraries(sol::lib::base); // Load basic Lua libraries
+        lua_.open_libraries(sol::lib::base, sol::lib::package); // Load basic Lua libraries
     } catch (const std::exception& e)
     {
         std::cout << "init failed: " << e.what() << std::endl;
@@ -229,6 +228,11 @@ const sol::state& ScriptManager::lua_state()
     return lua_;
 
 };
+
+void ScriptManager::bind_function(const std::string& name, std::function<int(int, int)> func)
+{
+    lua_.set_function(name, func);
+}
 
 
 
