@@ -11,7 +11,8 @@
 #include <optional>
 using pluginFunc = std::function<int(PluginManager::pluginContext&)>;
 
-bool PluginManager::loadPlugin(const fs::path& pluginDir, ScriptManager& sm) {
+bool PluginManager::loadPlugin(const fs::path& pluginDir, ScriptManager& sm) const
+{
     // Basic sanity checks
     if (!fs::exists(pluginDir) || !fs::is_directory(pluginDir)) {
         std::cerr << "Plugin directory does not exist or is not a directory: " << pluginDir << '\n';

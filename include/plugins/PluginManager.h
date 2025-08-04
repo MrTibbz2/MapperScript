@@ -14,7 +14,7 @@
 #include "Scripting/ScriptManager.h"
 #include <utility>
 #include <dynalo.hpp>
-#include <sol/sol.hpp>
+
 #include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
@@ -117,9 +117,10 @@ public:
 
 
 
-    bool loadPlugin(const fs::path& pluginDir, ScriptManager& sm);
+    bool loadPlugin(const fs::path& pluginDir, ScriptManager& sm) const;
 
-    void loadPluginsFromDir(const fs::path& plugin_dir, ScriptManager& sm) {
+    void loadPluginsFromDir(const fs::path& plugin_dir, ScriptManager& sm) const
+    {
         if (!fs::exists(plugin_dir) || !fs::is_directory(plugin_dir)) {
             std::cerr << "[PluginLoader] Plugin directory not found: " << plugin_dir << "\n";
             return;

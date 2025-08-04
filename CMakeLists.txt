@@ -49,23 +49,21 @@ endif()
 # --- Executable ---
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
-# --- Link Lua 5.4 ---
+# --- Link Lua 5.4 dynamically ---
 if(PLATFORM_LINUX)
-    # Link directly to the static library (without using -l flag)
-    target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/vendored/linux_lua/liblua54.a")
-    target_link_libraries(${PROJECT_NAME} PRIVATE dl)
-elseif(PLATFORM_WINDOWS)
-    target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/vendored/lua/liblua54.a")
-elseif(PLATFORM_OSX)
-    target_link_libraries(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/vendored/osx_lua/liblua.a")
-endif()
+    # Link to shared Lua library  
+    target_link_libraries(${PROJECT_NAME} PRIVATE lua54 dl)
 
-# --- Copy DLL for Windows builds (if dynamic) ---
-if(WIN32)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_SOURCE_DIR}/vendored/lua/lua54.dll"
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+elseif(PLATFORM_OSX)
+    # Link to shared Lua library
+    message(STATUS "ARCHIE IF THIS FAILS ITS BECAUSE YOU DIDNT BLOODY LINK LUA MAN.")
+    target_link_libraries(${PROJECT_NAME} PRIVATE lua)
+endif()
+if(PLATFORM_WINDOWS)
+    # Link the import library explicitly by full path, no -l flags needed
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+            "${CMAKE_SOURCE_DIR}/vendored/lua/liblua54.dll.a"
+    )
 endif()
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

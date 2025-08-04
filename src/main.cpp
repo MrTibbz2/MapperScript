@@ -4,7 +4,8 @@
 // All rights reserved. No part of this code may be used, copied, or distributed without permission.
 
 #include "MapperEngine.h"
-int main() {
+
+[[noreturn]] int main() {
 
 
     const std::string testScriptPath = "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/cmake-build-release/scripts/script.lua";
@@ -16,7 +17,7 @@ int main() {
 
     std::future Script_Exec = ScriptMgr.run_script(testScriptPath);
 
-    PluginManager PluginMgr;
+    const PluginManager PluginMgr;
 
     PluginMgr.loadPluginsFromDir("plugins", ScriptMgr);
 
