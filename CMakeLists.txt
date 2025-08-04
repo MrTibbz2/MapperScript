@@ -52,12 +52,17 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 # --- Link Lua 5.4 dynamically ---
 if(PLATFORM_LINUX)
     # Link to shared Lua library  
-    target_link_libraries(${PROJECT_NAME} PRIVATE lua54 dl)
+
+
+    target_link_libraries(${PROJECT_NAME}
+            PRIVATE
+            ${CMAKE_SOURCE_DIR}/vendored/linux_lua/liblua54.so
+            dl)
 
 elseif(PLATFORM_OSX)
     # Link to shared Lua library
     message(STATUS "ARCHIE IF THIS FAILS ITS BECAUSE YOU DIDNT BLOODY LINK LUA MAN.")
-    target_link_libraries(${PROJECT_NAME} PRIVATE lua)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendored/osx_lua/liblua.dylib)
 endif()
 if(PLATFORM_WINDOWS)
     # Link the import library explicitly by full path, no -l flags needed

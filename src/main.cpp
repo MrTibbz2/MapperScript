@@ -15,11 +15,13 @@
     ScriptMgr.start_watcher_thread();
     ScriptMgr.load_script(testScriptPath);
 
-    std::future Script_Exec = ScriptMgr.run_script(testScriptPath);
-
     const PluginManager PluginMgr;
 
     PluginMgr.loadPluginsFromDir("plugins", ScriptMgr);
+
+    std::future Script_Exec = ScriptMgr.run_script(testScriptPath);
+
+
 
     while (true)
     {
