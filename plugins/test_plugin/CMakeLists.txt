@@ -1,41 +1,63 @@
+#/plugins/test_plugin/CmakeLists.txt
 cmake_minimum_required(VERSION 3.15)
 project(plugin LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Define your source files for the plugin here
+# Define plugin source files
 set(SOURCES
         src/test_plugin.cpp
 )
 
-# Create a shared library (DLL/.so/.dylib depending on platform)
+# Create shared library (plugin)
 add_library(plugin SHARED ${SOURCES})
 
-# Optionally, set any necessary include directories
+# Include directories - minimal dependencies for plugin development
 target_include_directories(plugin PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/../../include
-        # Add any other includes your plugin needs here
+        ../../include                           # Only main app headers (for pluginContext)
+        ../../vendored/lua/include             # Windows Lua headers
+        ../../vendored/linux_lua/include       # Linux Lua headers
+        ../../vendored/osx_lua/include         # macOS Lua headers
+        ../../vendored/sol2/include            # Sol2 headers (needed for pluginContext)
 )
 
-# Export symbols properly on Windows
+# Platform-specific Lua linking
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # Link against Lua import library - expects lua54.dll in main app directory
+    target_link_libraries(plugin PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../vendored/lua/liblua54.dll.a")
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Link against shared Lua library in main app directory
+    target_link_directories(plugin PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../vendored/linux_lua")
+    target_link_libraries(plugin PRIVATE lua54)
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # Link against shared Lua library in main app directory
+    target_link_directories(plugin PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../vendored/osx_lua")
+    target_link_libraries(plugin PRIVATE lua)
+endif()
+
+# Windows DLL export definitions
 if(WIN32)
     target_compile_definitions(plugin PRIVATE PLUGIN_EXPORTS)
 endif()
 
+# Plugin output settings
 set_target_properties(plugin PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins/test_plugin"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins/test_plugin"
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/plugins/test_plugin"
+        POSITION_INDEPENDENT_CODE ON
+        PREFIX ""  # Remove lib prefix on Unix
 )
-add_custom_command(
-        TARGET plugin POST_BUILD
+
+# Copy plugin Lua script alongside compiled plugin
+add_custom_command(TARGET plugin POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/plugin.lua
         $<TARGET_FILE_DIR:plugin>/plugin.lua
 )
-# Optional: set position independent code for Unix
-set_target_properties(plugin PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
-set_target_properties(plugin PROPERTIES PREFIX "")

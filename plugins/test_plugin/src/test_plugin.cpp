@@ -23,7 +23,7 @@ extern "C" {
         std::cout << "[test_plugin] pluginInit called\n";
         // Register the function using the function pointer in the context
         
-        //ctx.bind_function("cpp_add_two_numbers", &cpp_add_two_numbers);
+        ctx.bind_function("cpp_add_two_numbers", &cpp_add_two_numbers);
         
         // Example for namespace registration:
         // if (ctx && ctx->bind_function_namespace) {
