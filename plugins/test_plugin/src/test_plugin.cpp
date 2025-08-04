@@ -2,7 +2,10 @@
 // test_plugin.cpp
 #include <iostream>
 
-#include "plugins/PluginManager.h"
+
+#include "../include/MapperScriptPluginAPI.h"
+
+
 
 #ifdef _WIN32
 #define PLUGIN_EXPORT __declspec(dllexport)
@@ -16,15 +19,21 @@ int cpp_add_two_numbers(int a, int b) { return a + b; }
 extern "C" {
 
     // Called when the plugin is loaded
-    PLUGIN_EXPORT int pluginInit(PluginManager::pluginContext& ctx) {
+    PLUGIN_EXPORT int pluginInit(MapperScriptPluginContext& ctx) {
         std::cout << "[test_plugin] pluginInit called\n";
-        // Initialize plugin resources, hook into ctx as needed
-        ctx.bindFunction("cpp_add_two_numbers", cpp_add_two_numbers);
+        // Register the function using the function pointer in the context
+        
+        ctx.bind_function("cpp_add_two_numbers", (void*)&cpp_add_two_numbers);
+        
+        // Example for namespace registration:
+        // if (ctx && ctx->bind_function_namespace) {
+        //     ctx->bind_function_namespace("math", "add", (void*)&cpp_add_two_numbers);
+        // }
         return 0; // success
     }
 
     // Called when the plugin is unloaded/shutdown
-    PLUGIN_EXPORT int pluginShutdown(PluginManager::pluginContext& ctx) {
+    PLUGIN_EXPORT int pluginShutdown(MapperScriptPluginContext* ctx) {
         std::cout << "[test_plugin] pluginShutdown called\n";
         // Clean up plugin resources here
         return 0; // success

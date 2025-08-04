@@ -11,7 +11,8 @@
 //#include <unordered_map>
 //#include <iostream>
 //#include <fstream>
-
+#include "Scripting/ScriptManager.h"
+#include <utility>
 #include <dynalo.hpp>
 #include <sol/sol.hpp>
 #include <nlohmann/json.hpp>
@@ -58,21 +59,33 @@ inline std::string getPlatformLibraryExtension() {
 class PluginManager
 {
 public:
-    struct pluginContext
-    {
-        // This binds a C++ function to Lua, scoped to this plugin
+    struct pluginContext {
+    private:
+        // Hide the ScriptManager pointer so plugins can't call it directly
+        ScriptManager* sm_ = nullptr;
+
+    public:
+        // Initialize with ScriptManager pointer (or ref converted to ptr)
+        explicit pluginContext(ScriptManager& sm) : sm_(&sm) {}
+
+        // Templated bind function that forwards only binding calls
         template<typename Func>
-        void bindFunction(const std::string& name, Func&& func) {
-            if (!lua) {
-                throw std::runtime_error("Lua state not set in pluginContext");
-            }
-            lua->set_function(name, std::forward<Func>(func));
+        void bind_function(const std::string& name, Func&& func)
+        {
+
+            sm_->bind_function(name, std::forward<Func>(func));
         }
 
+        // Bind with namespace
+        template<typename Func>
+        void bind_function_namespace(const std::string& ns, const std::string& name, Func&& func) {
+            sm_->bind_function_namespace(ns, name, std::forward<Func>(func));
+        }
 
+        // No public way to get sm_ pointer/reference, so no full access
     };
 
-    struct PluginAPI
+    struct PluginAPI // api required by every plugin, every plugin must have this
     {
         using pluginFunc = std::function<int(pluginContext&)>;
 
@@ -89,7 +102,7 @@ public:
         std::optional<dynalo::library> lib;
         PluginAPI api;
 
-        plugin() = delete; // 👈 allow default construction
+        plugin() = delete; // allow default construction
 
         explicit plugin(const fs::path& folder)
             : name(folder.filename().string()),
@@ -104,9 +117,9 @@ public:
 
 
 
-    bool loadPlugin(const fs::path& pluginDir);
+    bool loadPlugin(const fs::path& pluginDir, ScriptManager& sm);
 
-    void loadPluginsFromDir(const fs::path& plugin_dir) {
+    void loadPluginsFromDir(const fs::path& plugin_dir, ScriptManager& sm) {
         if (!fs::exists(plugin_dir) || !fs::is_directory(plugin_dir)) {
             std::cerr << "[PluginLoader] Plugin directory not found: " << plugin_dir << "\n";
             return;
@@ -118,7 +131,7 @@ public:
 
             const fs::path& folder = entry.path();
             try {
-                loadPlugin(folder); // assumes this exists and returns a plugin object
+                loadPlugin(folder, sm);
                 std::cout << "[PluginLoader] Loaded plugin from " << folder << "\n";
             } catch (const std::exception& e) {
                 std::cerr << "[PluginLoader] Failed to load plugin in " << folder << ": " << e.what() << "\n";
@@ -129,6 +142,6 @@ public:
 
 
 private:
-
-    std::vector<plugin> loadedPlugins;
+    using pluginVector = std::vector<plugin>;
+    std::unique_ptr<pluginVector> loadedPlugins = std::make_unique<pluginVector>();
 };

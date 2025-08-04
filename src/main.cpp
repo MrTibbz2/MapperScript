@@ -18,7 +18,7 @@ int main() {
 
     PluginManager PluginMgr;
 
-    PluginMgr.loadPluginsFromDir("plugins");
+    PluginMgr.loadPluginsFromDir("plugins", ScriptMgr);
 
     while (true)
     {

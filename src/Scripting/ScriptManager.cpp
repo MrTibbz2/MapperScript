@@ -229,10 +229,7 @@ const sol::state& ScriptManager::lua_state()
 
 };
 
-void ScriptManager::bind_function(const std::string& name, std::function<int(int, int)> func)
-{
-    lua_.set_function(name, func);
-}
+
 
 
 

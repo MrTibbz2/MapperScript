@@ -62,9 +62,25 @@ public:
     // Access to the Lua state for advanced usage if needed
     const sol::state& lua_state();
 
-    void bind_function(const std::string& name, std::function<int(int, int)> func);
+    template<typename Func>
+    void bind_function(const std::string& name, Func&& func) {
+        // Simple direct registration
+        std::cout << "[pluginMGR] Binding function: " << name << '\n';
+        lua_.set_function(name, std::forward<Func>(func));
+    }
 
-    void print_fileTimes()
+    // Bind function into a Lua namespace table
+    template<typename Func>
+    void bind_function_namespace(const std::string& ns, const std::string& name, Func&& func) {
+        sol::table table = lua_[ns];
+        if (!table.valid()) {
+            table = lua_.create_table(ns);
+        }
+        table.set_function(name, std::forward<Func>(func));
+    }
+
+
+    void print_fileTimes() const
     {
         std::cout << "file count: " << file_watch_times_.size() << "\n";
         std::cout << "times: " << file_watch_times_.begin()->first << "\n";

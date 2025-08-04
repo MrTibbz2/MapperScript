@@ -11,7 +11,7 @@
 #include <optional>
 using pluginFunc = std::function<int(PluginManager::pluginContext&)>;
 
-bool PluginManager::loadPlugin(const fs::path& pluginDir) {
+bool PluginManager::loadPlugin(const fs::path& pluginDir, ScriptManager& sm) {
     // Basic sanity checks
     if (!fs::exists(pluginDir) || !fs::is_directory(pluginDir)) {
         std::cerr << "Plugin directory does not exist or is not a directory: " << pluginDir << '\n';
@@ -83,7 +83,7 @@ bool PluginManager::loadPlugin(const fs::path& pluginDir) {
     if (newPlugin.api.pluginInit.second) {
         int initResult = 0;
         try {
-            pluginContext newCtx(sm);
+            pluginContext newCtx{sm};
             initResult = newPlugin.api.pluginInit.second(newCtx);
         } catch (const std::exception& e) {
             std::cerr << "Exception thrown during pluginInit: " << e.what() << '\n';
@@ -105,6 +105,6 @@ bool PluginManager::loadPlugin(const fs::path& pluginDir) {
     newPlugin.version = "0.1";
 
     // Store loaded plugin
-    loadedPlugins.push_back(std::move(newPlugin));
+    loadedPlugins->push_back(std::move(newPlugin));
     return true;
 }
