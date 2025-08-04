@@ -3,8 +3,8 @@
 #include <iostream>
 
 
-#include "../include/MapperScriptPluginAPI.h"
 
+#include "plugins/PluginManager.h"
 
 
 #ifdef _WIN32
@@ -19,11 +19,11 @@ int cpp_add_two_numbers(int a, int b) { return a + b; }
 extern "C" {
 
     // Called when the plugin is loaded
-    PLUGIN_EXPORT int pluginInit(MapperScriptPluginContext& ctx) {
+    PLUGIN_EXPORT int pluginInit(PluginManager::pluginContext& ctx) {
         std::cout << "[test_plugin] pluginInit called\n";
         // Register the function using the function pointer in the context
         
-        ctx.bind_function("cpp_add_two_numbers", (void*)&cpp_add_two_numbers);
+        ctx.bind_function("cpp_add_two_numbers", &cpp_add_two_numbers);
         
         // Example for namespace registration:
         // if (ctx && ctx->bind_function_namespace) {
