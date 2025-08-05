@@ -19,7 +19,7 @@ int cpp_add_two_numbers(int a, int b) { return a + b; }
 extern "C" {
 
     // Called when the plugin is loaded
-    PLUGIN_EXPORT int pluginInit(PluginManager::pluginContext& ctx) {
+    PLUGIN_EXPORT int pluginLoad(PluginManager::pluginContext& ctx) {
         std::cout << "[test_plugin] pluginInit called\n";
         // Register the function using the function pointer in the context
         

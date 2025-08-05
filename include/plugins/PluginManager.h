@@ -34,9 +34,7 @@ inline std::string getPlatformLibraryExtension() {
 /// PluginManager
 /// - Loads plugins from disk, reads manifest.
 /// - Loads shared libraries (dynalo) per platform.
-/// - Loads Lua glue scripts via sol2.
 /// - Calls plugin init function: MapperPluginInit(PluginContext&).
-/// - Calls plugin API factory CreatePluginAPI(), stores unique_ptr<IPluginAPI>.
 /// - Provides API lookup for plugins via getPluginAPI(name).
 /// - Passes pointer to PluginManager in PluginContext for inter-plugin calls.
 ///
@@ -48,17 +46,18 @@ inline std::string getPlatformLibraryExtension() {
 /// - Passed to plugins on init.
 /// - Contains sol::state_view lua, PluginManager* for communication.
 ///
-/// Plugin API lifecycle
-/// - Plugin exports factory CreatePluginAPI() returning new IPluginAPI instance.
-/// - PluginManager owns that instance, cleans up on unload.
-///
-/// Inter-plugin calls
+/// TODO: Inter-plugin calls
 /// - Plugins query PluginManager for APIs of other plugins.
 /// - Plugins use Lua or direct C++ interface to interact.
 
 class PluginManager
 {
 public:
+    struct ExportedPluginFunction // function exported by plugin
+    {
+        std::string name;
+        std::any function;
+    };
     struct pluginContext {
     private:
         // Hide the ScriptManager pointer so plugins can't call it directly
@@ -82,16 +81,29 @@ public:
             sm_->bind_function_namespace(ns, name, std::forward<Func>(func));
         }
 
+
         // No public way to get sm_ pointer/reference, so no full access
     };
-
-    struct PluginAPI // api required by every plugin, every plugin must have this
+    enum class PLUGIN_INIT_FAILURE
     {
-        using pluginFunc = std::function<int(pluginContext&)>;
-
-        std::pair<std::string, pluginFunc> pluginInit = { "pluginInit", nullptr };
-        std::pair<std::string, pluginFunc> pluginShutdown = { "pluginShutdown", nullptr };
+        FAILURE
     };
+    struct RequiredPluginAPI // api required by every plugin, every plugin must have this
+    {
+
+        // pluginLoad: plugins export their exports and setup their context with the deps of other plugins
+
+        std::pair<std::string, std::function<std::expected<std::vector<ExportedPluginFunction>, PLUGIN_INIT_FAILURE>(pluginContext&)>> pluginLoad = { "pluginLoad", nullptr };
+
+        // PLUGIN INIT HAS BEEN DEPRECATED.
+
+        // // pluginInit: plugins should access other functions exported by plugins if they have dependencies.
+        // // plugins may init anything else + bind functions using context.
+        //std::pair<std::string, pluginFunc> pluginInit = { "pluginShutdown", nullptr };
+        std::pair<std::string, std::function<int(pluginContext&)>> pluginShutdown = { "pluginShutdown", nullptr };
+    };
+
+
     struct plugin {
         std::string name;
         std::string description;
@@ -100,7 +112,9 @@ public:
         fs::path lib_path;
         fs::path luaScript_path;
         std::optional<dynalo::library> lib;
-        PluginAPI api;
+        RequiredPluginAPI RequiredAPI;
+        std::vector<ExportedPluginFunction> exportedFunctions;
+
 
         plugin() = delete; // allow default construction
 
@@ -141,7 +155,7 @@ public:
     }
 
 
-    bool CheckIfPluginExists(const std::string& name) const
+    [[nodiscard]] bool CheckIfPluginExists(const std::string& name) const
     {
         if (!loadedPlugins) {
             // Handle error or just return false
@@ -155,6 +169,9 @@ public:
         return false;
 
     }
+
+
+
 
 private:
     using pluginVector = std::vector<plugin>;

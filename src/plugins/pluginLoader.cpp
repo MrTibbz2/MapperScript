@@ -1,11 +1,8 @@
-
 // Copyright (c) 2025 Lachlan McKenna - MapperEngine
 // All rights reserved. No part of this code may be used, copied, or distributed without permission.
 // /src/plugins/pluginLoader.h
 
 #include "plugins/PluginManager.h"
-
-
 #include <iostream>
 #include <filesystem>
 #include <fstream>
@@ -63,33 +60,48 @@ bool PluginManager::loadPlugin(const fs::path& pluginDir, ScriptManager& sm) con
     newPlugin.lib = std::move(*loadedLib);
 
     // Helper lambda to load a function pointer from the library
-    auto loadPluginFunction = [&](const char* funcName) -> std::optional<pluginFunc> {
+    // Function to load a plugin function from the library
+    auto loadPluginFunction = [&](const char* funcName)
+        -> std::optional<std::function<std::expected<std::vector<ExportedPluginFunction>, PLUGIN_INIT_FAILURE>(pluginContext&)>> {
         try {
-            auto rawFunc = newPlugin.lib->get_function<int(pluginContext&)>(funcName);
-            return pluginFunc{ [rawFunc](pluginContext& ctx) { return rawFunc(ctx); } };
+            // Retrieve the function from the plugin library with the new return type
+            auto rawFunc = newPlugin.lib->get_function<std::expected<std::vector<ExportedPluginFunction>, PLUGIN_INIT_FAILURE>(pluginContext&)>(funcName);
+
+            // Return a lambda that calls the loaded function
+            return std::function<std::expected<std::vector<ExportedPluginFunction>, PLUGIN_INIT_FAILURE>(pluginContext&)>{
+                [rawFunc](pluginContext& ctx) { return rawFunc(ctx); }
+            };
         } catch (...) {
+            // Return nullopt if the function can't be loaded
             return std::nullopt;
         }
     };
 
-    // Load required pluginInit function
-    auto initFuncOpt = loadPluginFunction("pluginInit");
+    // Load required pluginLoad function
+    auto initFuncOpt = loadPluginFunction("pluginLoad");
+
+    // Check if the function was loaded successfully
     if (!initFuncOpt.has_value()) {
-        std::cerr << "Missing required symbol: pluginInit\n";
+        std::cerr << "Missing required symbol: pluginLoad\n";
         return false;
     }
-    newPlugin.api.pluginInit.second = *initFuncOpt;
+
+    // Assign the loaded function to the RequiredAPI struct
+    newPlugin.RequiredAPI.pluginLoad.second = *initFuncOpt;
 
     // Load optional pluginShutdown function
     auto shutdownFuncOpt = loadPluginFunction("pluginShutdown");
-    newPlugin.api.pluginShutdown.second = shutdownFuncOpt.value_or(nullptr);
+    newPlugin.RequiredAPI.pluginShutdown.second = shutdownFuncOpt.value_or(nullptr);
 
     // Call pluginInit
-    if (newPlugin.api.pluginInit.second) {
-        int initResult = 0;
+    if (newPlugin.RequiredAPI.pluginLoad.second) {
+
         try {
             pluginContext newCtx{sm};
-            initResult = newPlugin.api.pluginInit.second(newCtx);
+            if (auto initResult = newPlugin.RequiredAPI.pluginLoad.second(newCtx); !initResult) {
+                std::cerr << "Plugin init failed" << '\n';
+                return false;
+            }
         } catch (const std::exception& e) {
             std::cerr << "Exception thrown during pluginInit: " << e.what() << '\n';
             return false;
@@ -98,10 +110,7 @@ bool PluginManager::loadPlugin(const fs::path& pluginDir, ScriptManager& sm) con
             return false;
         }
 
-        if (initResult != 0) {
-            std::cerr << "Plugin init failed with code " << initResult << '\n';
-            return false;
-        }
+
     }
 
     fs::path json_input_path = pluginDir / "metadata.json";
