@@ -141,6 +141,20 @@ public:
     }
 
 
+    bool CheckIfPluginExists(const std::string& name) const
+    {
+        if (!loadedPlugins) {
+            // Handle error or just return false
+            return false;
+        }
+
+        for (const plugin& ExistingPlugin : *loadedPlugins) {
+            if (ExistingPlugin.name == name)
+                return true;
+        }
+        return false;
+
+    }
 
 private:
     using pluginVector = std::vector<plugin>;

@@ -8,7 +8,11 @@
 
 #include <iostream>
 #include <filesystem>
+#include <fstream>
 #include <optional>
+#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
 using pluginFunc = std::function<int(PluginManager::pluginContext&)>;
 
 bool PluginManager::loadPlugin(const fs::path& pluginDir, ScriptManager& sm) const
@@ -100,10 +104,47 @@ bool PluginManager::loadPlugin(const fs::path& pluginDir, ScriptManager& sm) con
         }
     }
 
-    // TODO: load from Lua or JSON here later
-    newPlugin.name = pluginDir.filename().string();
-    newPlugin.description = "No description";
-    newPlugin.version = "0.1";
+    fs::path json_input_path = pluginDir / "metadata.json";
+
+    auto setDefaultPlugin = [&]() {
+        newPlugin.name = pluginDir.filename().string();
+        newPlugin.description = "No description";
+        newPlugin.version = "0.1";
+        std::cout << "Using default plugin metadata\n";
+    };
+
+    if (!fs::exists(json_input_path)) {
+        std::cout << "metadata.json not found\n";
+        setDefaultPlugin();
+    } else {
+        std::ifstream input_file(json_input_path);
+        if (!input_file) {
+            std::cerr << "Failed to open file: " << json_input_path << "\n";
+            setDefaultPlugin();
+        } else {
+            json metadata;
+            try {
+                input_file >> metadata;
+            } catch (const json::parse_error& e) {
+                std::cerr << "Failed to parse JSON: " << e.what() << '\n';
+                setDefaultPlugin();
+            }
+
+            newPlugin.name = metadata.value("name", pluginDir.filename().string());
+            newPlugin.version = metadata.value("version", "0.0");
+            newPlugin.description = metadata.value("description", "N/A");
+
+            if (CheckIfPluginExists(newPlugin.name)) {
+                std::cout << "Plugin named \"" << newPlugin.name << "\" already exists, discarding...\n";
+                return false;
+            }
+        }
+    }
+
+
+
+
+
 
     // Store loaded plugin
     loadedPlugins->push_back(std::move(newPlugin));
