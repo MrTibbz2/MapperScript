@@ -17,6 +17,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "nlohmann/json.hpp"
+
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
@@ -100,14 +102,16 @@ public:
         // // pluginInit: plugins should access other functions exported by plugins if they have dependencies.
         // // plugins may init anything else + bind functions using context.
         //std::pair<std::string, pluginFunc> pluginInit = { "pluginShutdown", nullptr };
-        std::pair<std::string, std::function<int(pluginContext&)>> pluginShutdown = { "pluginShutdown", nullptr };
+        std::pair<std::string, std::function<std::expected<std::vector<ExportedPluginFunction>, PLUGIN_INIT_FAILURE>(pluginContext&)>> pluginShutdown = { "pluginShutdown", nullptr };
     };
 
 
     struct plugin {
+        bool loaded = false;
         std::string name;
         std::string description;
         std::string version;
+        json dependencies;
         fs::path folder_path;
         fs::path lib_path;
         fs::path luaScript_path;
@@ -131,9 +135,8 @@ public:
 
 
 
-    bool loadPlugin(const fs::path& pluginDir, ScriptManager& sm) const;
 
-    void loadPluginsFromDir(const fs::path& plugin_dir, ScriptManager& sm) const
+    void loadPluginsFromDir(const fs::path& plugin_dir) const
     {
         if (!fs::exists(plugin_dir) || !fs::is_directory(plugin_dir)) {
             std::cerr << "[PluginLoader] Plugin directory not found: " << plugin_dir << "\n";
@@ -146,12 +149,26 @@ public:
 
             const fs::path& folder = entry.path();
             try {
-                loadPlugin(folder, sm);
+                loadPluginMetadata(folder);
                 std::cout << "[PluginLoader] Loaded plugin from " << folder << "\n";
             } catch (const std::exception& e) {
                 std::cerr << "[PluginLoader] Failed to load plugin in " << folder << ": " << e.what() << "\n";
             }
+
         }
+        if (auto loadOrder = ResolveLoadOrder()) {
+            std::cout << "load order\n";
+            std::cout << "plugins found: " << loadOrder->size() << "\n";
+
+            for (plugin& entry : *loadOrder) {
+                std::cout << entry.name << "\n";
+                std::cout << entry.description << "\n";
+                std::cout << entry.dependencies.dump() << "\n";
+            }
+        } else {
+            std::cerr << "Failed to resolve plugin load order: " << loadOrder.error() << "\n";
+        }
+
     }
 
 
@@ -169,8 +186,76 @@ public:
         return false;
 
     }
+    bool loadPluginMetadata(const std::filesystem::path& pluginDir) const;
 
+    [[nodiscard]]
+    std::expected<std::reference_wrapper<plugin>, bool> GetPluginByName(const std::string& name) const
+    {
+        for (plugin& ExistingPlugin : *loadedPlugins)
+        {
+            if (ExistingPlugin.name == name)
+                return std::ref(ExistingPlugin); // wrap the reference
+        }
+        return std::unexpected(false); // return an error value
+    }
+    static bool contains_plugin_with_name(const std::vector<std::reference_wrapper<plugin>>& plugins, const std::string& target) {
+        return std::any_of(plugins.begin(), plugins.end(),
+                           [&](const std::reference_wrapper<plugin>& p_ref) {
+                               return p_ref.get().name == target;
+                           });
+    }
+    [[nodiscard]]
+    std::expected<std::vector<std::reference_wrapper<plugin>>, std::string>
+    ResolveLoadOrder() const
+    {
+        if (!loadedPlugins) { return std::unexpected("loaded plugins does not exist.");}
+        std::vector<std::reference_wrapper<plugin>> PluginLoadOrder;
+        while (loadedPlugins->size() != PluginLoadOrder.size())
+        {
+            for (plugin& PluginMetadata : *loadedPlugins)
+            {
+                if (contains_plugin_with_name(PluginLoadOrder, PluginMetadata.name)) { continue; }
+                if (PluginMetadata.loaded)
+                {
+                    std::cerr << "[PluginLoader] plugin already loaded: " << PluginMetadata.name << "\n";
+                    continue;
+                }
+                if (!PluginMetadata.dependencies.is_array())
+                {
+                    std::cerr << "[PluginLoader] Dependencies format not supported\n";
+                    continue;
+                }
+                bool dependenciesFound = true;
+                if (PluginMetadata.dependencies.empty())
+                {
+                    PluginLoadOrder.emplace_back(PluginMetadata);
+                    std::cout << "[PluginLoader] No dependencies found, adding plugin " << PluginMetadata.name << " to load order\n";
+                    continue;
+                }
+                for (const json& dep : PluginMetadata.dependencies )
+                {
+                    if (!dep.is_object())
+                    {
+                        std::cerr << "[PluginLoader] Dependency in " << PluginMetadata.name << " is not an object\n";
+                        continue;
+                    }
+                    if (!contains_plugin_with_name(PluginLoadOrder, dep.value("name", std::string())))
+                    {
+                        dependenciesFound = false;
 
+                    }
+                }
+                if (dependenciesFound)
+                {
+                    PluginLoadOrder.emplace_back(PluginMetadata);
+                    std::cout << "[PluginLoader] deps found. adding plugin to load order " << PluginMetadata.name << "\n";
+                }
+
+            }
+        }
+        return PluginLoadOrder;
+
+    }
 
 
 private:

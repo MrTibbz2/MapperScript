@@ -15,11 +15,11 @@
 
 int cpp_add_two_numbers(int a, int b) { return a + b; }
 
-
+int dep_multiply_two_numbers(int a, int b) { return a * b; }
 extern "C" {
 
     // Called when the plugin is loaded
-    PLUGIN_EXPORT int pluginLoad(PluginManager::pluginContext& ctx) {
+    PLUGIN_EXPORT std::expected<std::vector<PluginManager::ExportedPluginFunction>, PluginManager::PLUGIN_INIT_FAILURE> pluginLoad(PluginManager::pluginContext& ctx) {
         std::cout << "[test_plugin] pluginInit called\n";
         // Register the function using the function pointer in the context
         
@@ -29,14 +29,16 @@ extern "C" {
         // if (ctx && ctx->bind_function_namespace) {
         //     ctx->bind_function_namespace("math", "add", (void*)&cpp_add_two_numbers);
         // }
-        return 0; // success
+        std::vector<PluginManager::ExportedPluginFunction> ret;
+        return ret; // success
     }
 
     // Called when the plugin is unloaded/shutdown
-    PLUGIN_EXPORT int pluginShutdown(PluginManager::pluginContext& ctx) {
+    PLUGIN_EXPORT std::expected<std::vector<PluginManager::ExportedPluginFunction>, PluginManager::PLUGIN_INIT_FAILURE> pluginShutdown(PluginManager::pluginContext& ctx) {
         std::cout << "[test_plugin] pluginShutdown called\n";
         // Clean up plugin resources here
-        return 0; // success
+        std::vector<PluginManager::ExportedPluginFunction> ret;
+        return ret; // success
     }
 
 } // extern "C"

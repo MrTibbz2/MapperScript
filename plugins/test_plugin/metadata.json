@@ -3,6 +3,11 @@
   "version": "1.2",
   "enabled": true,
   "author": "Lachlan McKenna",
-  "description": "A test plugin poc for ScriptEngine"
+  "description": "A test plugin poc for ScriptEngine",
+  "dependencies": [
+
+
+
+  ]
 
 }
