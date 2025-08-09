@@ -1,0 +1,13 @@
+{
+  "name": "math_consumer",
+  "version": "1.0",
+  "enabled": true,
+  "author": "Lachlan McKenna",
+  "description": "Example plugin that depends on test_plugin to demonstrate inter-plugin communication",
+  "dependencies": [
+    {
+      "name": "test_plugin",
+      "version": ">=1.0"
+    }
+  ]
+}
