@@ -16,10 +16,10 @@
     ScriptMgr.load_script(testScriptPath);
 
     const PluginManager PluginMgr;
+    PluginMgr.loadPluginsFromDir("plugins", ScriptMgr);
 
-    PluginMgr.loadPluginsFromDir("plugins");
-
-    //std::future Script_Exec = ScriptMgr.run_script(testScriptPath);
+    // Run script after plugins are loaded
+    std::future Script_Exec = ScriptMgr.run_script(testScriptPath);
 
 
 

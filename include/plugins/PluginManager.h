@@ -8,9 +8,7 @@
 
 #include <filesystem>
 #include <string>
-//#include <unordered_map>
-//#include <iostream>
-//#include <fstream>
+#include <algorithm>
 #include "Scripting/ScriptManager.h"
 #include <utility>
 #include <dynalo.hpp>
@@ -33,79 +31,76 @@ inline std::string getPlatformLibraryExtension() {
     return "";
 #endif
 }
-/// PluginManager
-/// - Loads plugins from disk, reads manifest.
-/// - Loads shared libraries (dynalo) per platform.
-/// - Calls plugin init function: MapperPluginInit(PluginContext&).
-/// - Provides API lookup for plugins via getPluginAPI(name).
-/// - Passes pointer to PluginManager in PluginContext for inter-plugin calls.
+/// PluginManager - Simplified Lua-based Inter-Plugin Communication
+/// 
+/// Plugins communicate through Lua headers (plugin.lua files) that act as public APIs.
+/// Each plugin:
+/// 1. Binds C++ functions to Lua namespaces in pluginLoad()
+/// 2. Exposes public API through plugin.lua header
+/// 3. Calls dependencies via ctx.call_lua() wrapper functions
+/// 
+/// Benefits:
+/// - Clean separation of public/private functions
+/// - Type-safe inter-plugin calls through C++ wrappers
+/// - Easy debugging through Lua call tracing
+/// - Minimal boilerplate code
 ///
-/// Plugin
-/// - Holds plugin info: name, paths, loaded library handle.
-/// - Owns plugin API instance
-///
-/// PluginContext
-/// - Passed to plugins on init.
-/// - Contains sol::state_view lua, PluginManager* for communication.
-///
-/// TODO: Inter-plugin calls
-/// - Plugins query PluginManager for APIs of other plugins.
-/// - Plugins use Lua or direct C++ interface to interact.
+/// Example Usage:
+/// Plugin A (math_plugin):
+///   - Binds: ctx.bind_function_namespace("math_plugin", "add", &cpp_add)
+///   - plugin.lua: function math_plugin.add(a, b) return cpp_add(a, b) end
+/// 
+/// Plugin B (depends on A):
+///   - Wrapper: int dep_add(int a, int b) { return ctx.call_lua<int>("math_plugin.add", a, b); }
+///   - Usage: int result = dep_add(5, 3);  // Calls through Lua to Plugin A
 
 class PluginManager
 {
 public:
-    struct ExportedPluginFunction // function exported by plugin
-    {
-        std::string name;
-        std::any function;
-    };
+
+
+    /// Plugin context passed to plugin init/shutdown functions
+    /// Provides controlled access to Lua binding and inter-plugin calls
     struct pluginContext {
     private:
-        // Hide the ScriptManager pointer so plugins can't call it directly
         ScriptManager* sm_ = nullptr;
 
     public:
-        // Initialize with ScriptManager pointer (or ref converted to ptr)
         explicit pluginContext(ScriptManager& sm) : sm_(&sm) {}
 
-        // Templated bind function that forwards only binding calls
+        /// Bind C++ function to global Lua namespace
         template<typename Func>
-        void bind_function(const std::string& name, Func&& func)
-        {
-
+        void bind_function(const std::string& name, Func&& func) {
             sm_->bind_function(name, std::forward<Func>(func));
         }
 
-        // Bind with namespace
+        /// Bind C++ function to specific Lua namespace (recommended for plugins)
         template<typename Func>
         void bind_function_namespace(const std::string& ns, const std::string& name, Func&& func) {
+            std::cout << "[pluginContext] Binding " << ns << "." << name << "\n";
             sm_->bind_function_namespace(ns, name, std::forward<Func>(func));
         }
 
-
-        // No public way to get sm_ pointer/reference, so no full access
+        /// Call Lua function from C++ (for inter-plugin communication)
+        /// Usage: int result = ctx.call_lua<int>("other_plugin.add", 5, 3);
+        template<typename R, typename... Args>
+        R call_lua(const std::string& func_path, Args... args) {
+            return sm_->lua_state_mutable()[func_path](args...);
+        }
     };
-    enum class PLUGIN_INIT_FAILURE
-    {
-        FAILURE
-    };
-    struct RequiredPluginAPI // api required by every plugin, every plugin must have this
-    {
-
-        // pluginLoad: plugins export their exports and setup their context with the deps of other plugins
-
-        std::pair<std::string, std::function<std::expected<std::vector<ExportedPluginFunction>, PLUGIN_INIT_FAILURE>(pluginContext&)>> pluginLoad = { "pluginLoad", nullptr };
-
-        // PLUGIN INIT HAS BEEN DEPRECATED.
-
-        // // pluginInit: plugins should access other functions exported by plugins if they have dependencies.
-        // // plugins may init anything else + bind functions using context.
-        //std::pair<std::string, pluginFunc> pluginInit = { "pluginShutdown", nullptr };
-        std::pair<std::string, std::function<std::expected<std::vector<ExportedPluginFunction>, PLUGIN_INIT_FAILURE>(pluginContext&)>> pluginShutdown = { "pluginShutdown", nullptr };
+    /// Required API functions that every plugin must implement
+    struct RequiredPluginAPI {
+        /// Plugin initialization - bind functions and setup dependencies
+        /// Return true on success, false on failure
+        std::pair<std::string, std::function<bool(pluginContext&)>> pluginLoad = { "pluginLoad", nullptr };
+        
+        /// Plugin cleanup - release resources
+        /// Return true on success, false on failure
+        std::pair<std::string, std::function<bool(pluginContext&)>> pluginShutdown = { "pluginShutdown", nullptr };
     };
 
 
+    /// Plugin metadata and runtime information
     struct plugin {
         bool loaded = false;
         std::string name;
@@ -114,10 +109,9 @@ public:
         json dependencies;
         fs::path folder_path;
         fs::path lib_path;
-        fs::path luaScript_path;
+        fs::path luaScript_path;  // plugin.lua header file
         std::optional<dynalo::library> lib;
         RequiredPluginAPI RequiredAPI;
-        std::vector<ExportedPluginFunction> exportedFunctions;
 
 
         plugin() = delete; // allow default construction
@@ -136,7 +130,7 @@ public:
 
 
 
-    void loadPluginsFromDir(const fs::path& plugin_dir) const
+    void loadPluginsFromDir(const fs::path& plugin_dir, ScriptManager& sm) const
     {
         if (!fs::exists(plugin_dir) || !fs::is_directory(plugin_dir)) {
             std::cerr << "[PluginLoader] Plugin directory not found: " << plugin_dir << "\n";
@@ -157,16 +151,43 @@ public:
 
         }
         if (auto loadOrder = ResolveLoadOrder()) {
-            std::cout << "load order\n";
-            std::cout << "plugins found: " << loadOrder->size() << "\n";
+            std::cout << "[PluginLoader] Load order resolved, found " << loadOrder->size() << " plugins\n";
 
             for (plugin& entry : *loadOrder) {
-                std::cout << entry.name << "\n";
-                std::cout << entry.description << "\n";
-                std::cout << entry.dependencies.dump() << "\n";
+                std::cout << "[PluginLoader] Loading: " << entry.name << "\n";
+                
+                // Debug: Check test_plugin namespace before loading math_consumer
+                if (entry.name == "math_consumer") {
+                    try {
+                        sol::table test_ns = sm.lua_state_mutable()["test_plugin"];
+                        if (test_ns.valid()) {
+                            sol::function cpp_add = test_ns["cpp_add"];
+                            std::cout << "[DEBUG] Before math_consumer load - test_plugin.cpp_add valid: " << (cpp_add.valid() ? "YES" : "NO") << "\n";
+                            if (cpp_add.valid()) {
+                                int result = cpp_add(10, 20);
+                                std::cout << "[DEBUG] test_plugin.cpp_add(10, 20) = " << result << "\n";
+                            }
+                        } else {
+                            std::cout << "[DEBUG] test_plugin namespace is INVALID\n";
+                        }
+                    } catch (const std::exception& e) {
+                        std::cerr << "[DEBUG] Exception checking namespace: " << e.what() << "\n";
+                    }
+                }
+                
+                if (loadPluginLibrary(entry, sm)) {
+                    // plugin.lua files are loaded via require() in scripts, not directly executed
+                    if (fs::exists(entry.luaScript_path)) {
+                        std::cout << "[PluginLoader] Plugin Lua header available: " << entry.luaScript_path << "\n";
+                    }
+                    entry.loaded = true;
+                    std::cout << "[PluginLoader] Successfully loaded: " << entry.name << "\n";
+                } else {
+                    std::cerr << "[PluginLoader] Failed to load: " << entry.name << "\n";
+                }
             }
         } else {
-            std::cerr << "Failed to resolve plugin load order: " << loadOrder.error() << "\n";
+            std::cerr << "[PluginLoader] Failed to resolve plugin load order: " << loadOrder.error() << "\n";
         }
 
     }
@@ -211,51 +232,46 @@ public:
     {
         if (!loadedPlugins) { return std::unexpected("loaded plugins does not exist.");}
         std::vector<std::reference_wrapper<plugin>> PluginLoadOrder;
+        size_t lastSize = 0;
+        
         while (loadedPlugins->size() != PluginLoadOrder.size())
         {
+            bool progressMade = false;
             for (plugin& PluginMetadata : *loadedPlugins)
             {
                 if (contains_plugin_with_name(PluginLoadOrder, PluginMetadata.name)) { continue; }
-                if (PluginMetadata.loaded)
-                {
-                    std::cerr << "[PluginLoader] plugin already loaded: " << PluginMetadata.name << "\n";
-                    continue;
-                }
+                
                 if (!PluginMetadata.dependencies.is_array())
                 {
-                    std::cerr << "[PluginLoader] Dependencies format not supported\n";
+                    std::cerr << "[PluginLoader] Dependencies format not supported for " << PluginMetadata.name << "\n";
                     continue;
                 }
-                bool dependenciesFound = true;
-                if (PluginMetadata.dependencies.empty())
+                
+                bool allDepsResolved = true;
+                for (const json& dep : PluginMetadata.dependencies)
                 {
-                    PluginLoadOrder.emplace_back(PluginMetadata);
-                    std::cout << "[PluginLoader] No dependencies found, adding plugin " << PluginMetadata.name << " to load order\n";
-                    continue;
-                }
-                for (const json& dep : PluginMetadata.dependencies )
-                {
-                    if (!dep.is_object())
+                    if (!dep.is_object()) continue;
+                    std::string depName = dep.value("name", std::string());
+                    if (!contains_plugin_with_name(PluginLoadOrder, depName))
                     {
-                        std::cerr << "[PluginLoader] Dependency in " << PluginMetadata.name << " is not an object\n";
-                        continue;
-                    }
-                    if (!contains_plugin_with_name(PluginLoadOrder, dep.value("name", std::string())))
-                    {
-                        dependenciesFound = false;
-
+                        allDepsResolved = false;
+                        break;
                     }
                 }
-                if (dependenciesFound)
+                
+                if (allDepsResolved)
                 {
                     PluginLoadOrder.emplace_back(PluginMetadata);
-                    std::cout << "[PluginLoader] deps found. adding plugin to load order " << PluginMetadata.name << "\n";
+                    std::cout << "[PluginLoader] Added to load order: " << PluginMetadata.name << "\n";
+                    progressMade = true;
                 }
-
+            }
+            
+            if (!progressMade) {
+                return std::unexpected("Circular dependency or missing dependency detected");
             }
         }
         return PluginLoadOrder;
-
     }
 
 

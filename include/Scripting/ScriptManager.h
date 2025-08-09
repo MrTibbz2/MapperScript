@@ -61,6 +61,9 @@ public:
 
     // Access to the Lua state for advanced usage if needed
     const sol::state& lua_state();
+    
+    // Non-const access for plugin context calls
+    sol::state& lua_state_mutable() { return lua_; }
 
     template<typename Func>
     void bind_function(const std::string& name, Func&& func) {
@@ -72,11 +75,19 @@ public:
     // Bind function into a Lua namespace table
     template<typename Func>
     void bind_function_namespace(const std::string& ns, const std::string& name, Func&& func) {
+        std::cout << "[ScriptManager] Creating/getting namespace: " << ns << "\n";
         sol::table table = lua_[ns];
         if (!table.valid()) {
-            table = lua_.create_table(ns);
+            std::cout << "[ScriptManager] Creating new table for namespace: " << ns << "\n";
+            table = lua_.create_table();
+            lua_[ns] = table;
         }
+        std::cout << "[ScriptManager] Setting function " << name << " in namespace " << ns << "\n";
         table.set_function(name, std::forward<Func>(func));
+        
+        // Debug: Verify the function was set
+        sol::function check = table[name];
+        std::cout << "[ScriptManager] Verification - " << ns << "." << name << " valid: " << (check.valid() ? "YES" : "NO") << "\n";
     }
 
 

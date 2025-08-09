@@ -108,6 +108,31 @@ bool PluginManager::loadPluginMetadata(const fs::path& pluginDir) const
 
 bool PluginManager::loadPluginLibrary(const plugin& newPlugin, ScriptManager& sm)
 {
-    
-    return true;
+    try {
+        // Load the shared library
+        dynalo::library lib(newPlugin.lib_path.string());
+        
+        // Get the pluginLoad function
+        auto pluginLoad = lib.get_function<bool(pluginContext&)>("pluginLoad");
+        if (!pluginLoad) {
+            std::cerr << "[PluginLoader] pluginLoad function not found in " << newPlugin.name << "\n";
+            return false;
+        }
+        
+        // Create context and call pluginLoad
+        pluginContext ctx(sm);
+        bool result = pluginLoad(ctx);
+        
+        if (result) {
+            std::cout << "[PluginLoader] Successfully loaded plugin: " << newPlugin.name << "\n";
+        } else {
+            std::cerr << "[PluginLoader] Plugin load failed: " << newPlugin.name << "\n";
+        }
+        
+        return result;
+        
+    } catch (const std::exception& e) {
+        std::cerr << "[PluginLoader] Exception loading plugin " << newPlugin.name << ": " << e.what() << "\n";
+        return false;
+    }
 }
