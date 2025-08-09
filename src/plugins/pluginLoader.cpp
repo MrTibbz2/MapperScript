@@ -106,3 +106,8 @@ bool PluginManager::loadPluginMetadata(const fs::path& pluginDir) const
 }
 
 
+bool PluginManager::loadPluginLibrary(const plugin& newPlugin, ScriptManager& sm)
+{
+    
+    return true;
+}

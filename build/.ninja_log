@@ -1,0 +1,8 @@
+# ninja log v6
+6	45	1754741488779952100	/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/cmake.verify_globs	41805f690934f78e
+52	8006	1754741488824022900	plugins/test_plugin/CMakeFiles/plugin.dir/src/test_plugin.cpp.o	e992ca8d68000af0
+8032	8195	1754741496804029400	plugins/test_plugin/plugin.so	2407f8f21de8c627
+50	8590	1754741488822410700	CMakeFiles/MapperScript.dir/src/main.cpp.o	79c705d0fcab3143
+51	9274	1754741488823315200	CMakeFiles/MapperScript.dir/src/plugins/pluginLoader.cpp.o	85ea43c30e5b9429
+48	10933	1754741488821475100	CMakeFiles/MapperScript.dir/src/Scripting/ScriptManager.cpp.o	6265e58f4b94ae22
+10933	11266	1754741499705597100	MapperScript	7948305eca63523f

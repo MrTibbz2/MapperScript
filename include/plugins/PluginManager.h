@@ -187,6 +187,7 @@ public:
 
     }
     bool loadPluginMetadata(const std::filesystem::path& pluginDir) const;
+    static bool loadPluginLibrary(const plugin& newPlugin, ScriptManager& sm);
 
     [[nodiscard]]
     std::expected<std::reference_wrapper<plugin>, bool> GetPluginByName(const std::string& name) const

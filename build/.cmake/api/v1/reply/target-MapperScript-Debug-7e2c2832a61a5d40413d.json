@@ -1,0 +1,187 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "MapperScript"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_libraries",
+			"target_compile_definitions",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 50,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 57,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 79,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 31,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -std=gnu++23"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 3,
+					"define" : "SOL_ALL_SAFETIES_ON=1"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 4,
+					"path" : "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/lua/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/linux_lua/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/osx_lua/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/sol2/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/dynalo/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "23"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2
+			]
+		}
+	],
+	"id" : "MapperScript::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "-L/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/linux_lua",
+				"role" : "libraryPath"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/linux_lua",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-llua54",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-ldl",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "MapperScript",
+	"nameOnDisk" : "MapperScript",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Scripting/ScriptManager.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/main.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/plugins/pluginLoader.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

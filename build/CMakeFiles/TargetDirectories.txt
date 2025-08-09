@@ -1,0 +1,6 @@
+/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/MapperScript.dir
+/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/edit_cache.dir
+/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/rebuild_cache.dir
+/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/plugins/test_plugin/CMakeFiles/plugin.dir
+/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/plugins/test_plugin/CMakeFiles/edit_cache.dir
+/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/plugins/test_plugin/CMakeFiles/rebuild_cache.dir

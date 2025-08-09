@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build",
+  "command": "/usr/bin/g++ -DSOL_ALL_SAFETIES_ON=1 -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/linux_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/osx_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/sol2/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/dynalo/include -g -std=gnu++23 -o CMakeFiles/MapperScript.dir/src/Scripting/ScriptManager.cpp.o -c /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/src/Scripting/ScriptManager.cpp",
+  "file": "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/src/Scripting/ScriptManager.cpp",
+  "output": "CMakeFiles/MapperScript.dir/src/Scripting/ScriptManager.cpp.o"
+},
+{
+  "directory": "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build",
+  "command": "/usr/bin/g++ -DSOL_ALL_SAFETIES_ON=1 -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/linux_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/osx_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/sol2/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/dynalo/include -g -std=gnu++23 -o CMakeFiles/MapperScript.dir/src/main.cpp.o -c /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/src/main.cpp",
+  "file": "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/src/main.cpp",
+  "output": "CMakeFiles/MapperScript.dir/src/main.cpp.o"
+},
+{
+  "directory": "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build",
+  "command": "/usr/bin/g++ -DSOL_ALL_SAFETIES_ON=1 -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/linux_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/osx_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/sol2/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/dynalo/include -g -std=gnu++23 -o CMakeFiles/MapperScript.dir/src/plugins/pluginLoader.cpp.o -c /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/src/plugins/pluginLoader.cpp",
+  "file": "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/src/plugins/pluginLoader.cpp",
+  "output": "CMakeFiles/MapperScript.dir/src/plugins/pluginLoader.cpp.o"
+},
+{
+  "directory": "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build",
+  "command": "/usr/bin/g++ -Dplugin_EXPORTS -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/linux_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/osx_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/sol2/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/dynalo/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/../../include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/../../vendored/lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/../../vendored/linux_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/../../vendored/osx_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/../../vendored/sol2/include -g -std=gnu++23 -fPIC -o plugins/test_plugin/CMakeFiles/plugin.dir/src/test_plugin.cpp.o -c /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/src/test_plugin.cpp",
+  "file": "/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/src/test_plugin.cpp",
+  "output": "plugins/test_plugin/CMakeFiles/plugin.dir/src/test_plugin.cpp.o"
+}
+]
