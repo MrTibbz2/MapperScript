@@ -137,6 +137,9 @@
 		},
 		{
 			"path" : "plugins/test_plugin/CMakeLists.txt"
+		},
+		{
+			"path" : "plugins/math_consumer/CMakeLists.txt"
 		}
 	],
 	"kind" : "cmakeFiles",

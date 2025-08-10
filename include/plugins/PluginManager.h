@@ -62,10 +62,11 @@ public:
     /// Plugin context passed to plugin init/shutdown functions
     /// Provides controlled access to Lua binding and inter-plugin calls
     struct pluginContext {
-    private:
-        ScriptManager* sm_ = nullptr;
+
+
 
     public:
+        ScriptManager* sm_ = nullptr;
         explicit pluginContext(ScriptManager& sm) : sm_(&sm) {}
 
         /// Bind C++ function to global Lua namespace
@@ -81,12 +82,7 @@ public:
             sm_->bind_function_namespace(ns, name, std::forward<Func>(func));
         }
 
-        /// Call Lua function from C++ (for inter-plugin communication)
-        /// Usage: int result = ctx.call_lua<int>("other_plugin.add", 5, 3);
-        template<typename R, typename... Args>
-        R call_lua(const std::string& func_path, Args... args) {
-            return sm_->lua_state_mutable()[func_path](args...);
-        }
+
     };
     /// Required API functions that every plugin must implement
     struct RequiredPluginAPI {
@@ -159,7 +155,7 @@ public:
                 // Debug: Check test_plugin namespace before loading math_consumer
                 if (entry.name == "math_consumer") {
                     try {
-                        sol::table test_ns = sm.lua_state_mutable()["test_plugin"];
+                        sol::table test_ns = sm.sol_state()["test_plugin"];
                         if (test_ns.valid()) {
                             sol::function cpp_add = test_ns["cpp_add"];
                             std::cout << "[DEBUG] Before math_consumer load - test_plugin.cpp_add valid: " << (cpp_add.valid() ? "YES" : "NO") << "\n";

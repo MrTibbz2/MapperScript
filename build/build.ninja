@@ -186,7 +186,77 @@ build plugins/test_plugin/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
 build plugins/test_plugin/rebuild_cache: phony plugins/test_plugin/CMakeFiles/rebuild_cache.util
 
 # =============================================================================
+# Write statements declared in CMakeLists.txt:
+# /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/CMakeLists.txt
+# =============================================================================
+
+# =============================================================================
+# Object build statements for SHARED_LIBRARY target math_consumer_plugin
+
+
+#############################################
+# Order-only phony target for math_consumer_plugin
+
+build cmake_object_order_depends_target_math_consumer_plugin: phony || .
+
+build plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir/src/math_consumer.cpp.o: CXX_COMPILER__math_consumer_plugin_unscanned_Debug /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/src/math_consumer.cpp || cmake_object_order_depends_target_math_consumer_plugin
+  DEFINES = -Dmath_consumer_plugin_EXPORTS
+  DEP_FILE = plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir/src/math_consumer.cpp.o.d
+  FLAGS = -g -std=gnu++23 -fPIC
+  INCLUDES = -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/linux_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/osx_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/sol2/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/vendored/dynalo/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/../../include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/../../vendored/lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/../../vendored/linux_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/../../vendored/osx_lua/include -I/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/../../vendored/sol2/include
+  OBJECT_DIR = plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir
+  OBJECT_FILE_DIR = plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir/src
+
+
+# =============================================================================
+# Link build statements for SHARED_LIBRARY target math_consumer_plugin
+
+
+#############################################
+# Link the shared library plugins/math_consumer/plugin.so
+
+build plugins/math_consumer/plugin.so: CXX_SHARED_LIBRARY_LINKER__math_consumer_plugin_Debug plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir/src/math_consumer.cpp.o
+  DEP_FILE = plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir/link.d
+  LANGUAGE_COMPILE_FLAGS = -g
+  LINK_FLAGS = -Wl,--dependency-file=plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir/link.d
+  LINK_LIBRARIES = -Wl,-rpath,/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/../../vendored/linux_lua  -llua54
+  LINK_PATH = -L/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/../../vendored/linux_lua
+  OBJECT_DIR = plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir
+  POST_BUILD = cd /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/plugins/math_consumer && /usr/bin/cmake -E copy /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/plugin.lua /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/plugins/math_consumer/plugin.lua
+  PRE_LINK = :
+  SONAME = plugin.so
+  SONAME_FLAG = -Wl,-soname,
+  TARGET_FILE = plugins/math_consumer/plugin.so
+  TARGET_PDB = plugin.so.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build plugins/math_consumer/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/plugins/math_consumer && /usr/bin/ccmake -S/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript -B/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build
+  DESC = Running CMake cache editor...
+  pool = console
+  restat = 1
+
+build plugins/math_consumer/edit_cache: phony plugins/math_consumer/CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build plugins/math_consumer/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/plugins/math_consumer && /usr/bin/cmake --regenerate-during-build -S/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript -B/run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build plugins/math_consumer/rebuild_cache: phony plugins/math_consumer/CMakeFiles/rebuild_cache.util
+
+# =============================================================================
 # Target aliases.
+
+build math_consumer_plugin: phony plugins/math_consumer/plugin.so
 
 build plugin: phony plugins/test_plugin/plugin.so
 
@@ -200,7 +270,14 @@ build plugin.so: phony plugins/test_plugin/plugin.so
 #############################################
 # Folder: /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build
 
-build all: phony MapperScript plugins/test_plugin/all
+build all: phony MapperScript plugins/test_plugin/all plugins/math_consumer/all
+
+# =============================================================================
+
+#############################################
+# Folder: /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/plugins/math_consumer
+
+build plugins/math_consumer/all: phony plugins/math_consumer/plugin.so
 
 # =============================================================================
 
@@ -230,14 +307,14 @@ build /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFi
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/cmake.verify_globs | /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/CMakeLists.txt /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/VerifyGlobs.cmake /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/CMakeLists.txt /usr/share/cmake/Modules/CMakeCXXInformation.cmake /usr/share/cmake/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake/Modules/CMakeGenericSystem.cmake /usr/share/cmake/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake/Modules/CMakeLanguageInformation.cmake /usr/share/cmake/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake/Modules/Compiler/GNU-CXX.cmake /usr/share/cmake/Modules/Compiler/GNU.cmake /usr/share/cmake/Modules/Internal/CMakeCXXLinkerInformation.cmake /usr/share/cmake/Modules/Internal/CMakeCommonLinkerInformation.cmake /usr/share/cmake/Modules/Linker/GNU-CXX.cmake /usr/share/cmake/Modules/Linker/GNU.cmake /usr/share/cmake/Modules/Platform/Linker/GNU.cmake /usr/share/cmake/Modules/Platform/Linker/Linux-GNU-CXX.cmake /usr/share/cmake/Modules/Platform/Linker/Linux-GNU.cmake /usr/share/cmake/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake/Modules/Platform/Linux-GNU.cmake /usr/share/cmake/Modules/Platform/Linux-Initialize.cmake /usr/share/cmake/Modules/Platform/Linux.cmake /usr/share/cmake/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.31.6/CMakeCXXCompiler.cmake CMakeFiles/3.31.6/CMakeSystem.cmake
+build build.ninja: RERUN_CMAKE /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/cmake.verify_globs | /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/CMakeLists.txt /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/VerifyGlobs.cmake /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/CMakeLists.txt /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/CMakeLists.txt /usr/share/cmake/Modules/CMakeCXXInformation.cmake /usr/share/cmake/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake/Modules/CMakeGenericSystem.cmake /usr/share/cmake/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake/Modules/CMakeLanguageInformation.cmake /usr/share/cmake/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake/Modules/Compiler/GNU-CXX.cmake /usr/share/cmake/Modules/Compiler/GNU.cmake /usr/share/cmake/Modules/Internal/CMakeCXXLinkerInformation.cmake /usr/share/cmake/Modules/Internal/CMakeCommonLinkerInformation.cmake /usr/share/cmake/Modules/Linker/GNU-CXX.cmake /usr/share/cmake/Modules/Linker/GNU.cmake /usr/share/cmake/Modules/Platform/Linker/GNU.cmake /usr/share/cmake/Modules/Platform/Linker/Linux-GNU-CXX.cmake /usr/share/cmake/Modules/Platform/Linker/Linux-GNU.cmake /usr/share/cmake/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake/Modules/Platform/Linux-GNU.cmake /usr/share/cmake/Modules/Platform/Linux-Initialize.cmake /usr/share/cmake/Modules/Platform/Linux.cmake /usr/share/cmake/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.31.6/CMakeCXXCompiler.cmake CMakeFiles/3.31.6/CMakeSystem.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/CMakeLists.txt /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/VerifyGlobs.cmake /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/CMakeLists.txt /usr/share/cmake/Modules/CMakeCXXInformation.cmake /usr/share/cmake/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake/Modules/CMakeGenericSystem.cmake /usr/share/cmake/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake/Modules/CMakeLanguageInformation.cmake /usr/share/cmake/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake/Modules/Compiler/GNU-CXX.cmake /usr/share/cmake/Modules/Compiler/GNU.cmake /usr/share/cmake/Modules/Internal/CMakeCXXLinkerInformation.cmake /usr/share/cmake/Modules/Internal/CMakeCommonLinkerInformation.cmake /usr/share/cmake/Modules/Linker/GNU-CXX.cmake /usr/share/cmake/Modules/Linker/GNU.cmake /usr/share/cmake/Modules/Platform/Linker/GNU.cmake /usr/share/cmake/Modules/Platform/Linker/Linux-GNU-CXX.cmake /usr/share/cmake/Modules/Platform/Linker/Linux-GNU.cmake /usr/share/cmake/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake/Modules/Platform/Linux-GNU.cmake /usr/share/cmake/Modules/Platform/Linux-Initialize.cmake /usr/share/cmake/Modules/Platform/Linux.cmake /usr/share/cmake/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.31.6/CMakeCXXCompiler.cmake CMakeFiles/3.31.6/CMakeSystem.cmake: phony
+build /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/CMakeLists.txt /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/build/CMakeFiles/VerifyGlobs.cmake /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/math_consumer/CMakeLists.txt /run/media/mrtibbs/OS/Users/lachl/CLionProjects/MapperScript/plugins/test_plugin/CMakeLists.txt /usr/share/cmake/Modules/CMakeCXXInformation.cmake /usr/share/cmake/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake/Modules/CMakeGenericSystem.cmake /usr/share/cmake/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake/Modules/CMakeLanguageInformation.cmake /usr/share/cmake/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake/Modules/Compiler/GNU-CXX.cmake /usr/share/cmake/Modules/Compiler/GNU.cmake /usr/share/cmake/Modules/Internal/CMakeCXXLinkerInformation.cmake /usr/share/cmake/Modules/Internal/CMakeCommonLinkerInformation.cmake /usr/share/cmake/Modules/Linker/GNU-CXX.cmake /usr/share/cmake/Modules/Linker/GNU.cmake /usr/share/cmake/Modules/Platform/Linker/GNU.cmake /usr/share/cmake/Modules/Platform/Linker/Linux-GNU-CXX.cmake /usr/share/cmake/Modules/Platform/Linker/Linux-GNU.cmake /usr/share/cmake/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake/Modules/Platform/Linux-GNU.cmake /usr/share/cmake/Modules/Platform/Linux-Initialize.cmake /usr/share/cmake/Modules/Platform/Linux.cmake /usr/share/cmake/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.31.6/CMakeCXXCompiler.cmake CMakeFiles/3.31.6/CMakeSystem.cmake: phony
 
 
 #############################################

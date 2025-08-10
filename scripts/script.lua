@@ -21,6 +21,9 @@ local complex = test_plugin.complex_math(3, 4, 5)  -- (3*4) + 5 = 17
 print("test_plugin.complex_math(3, 4, 5) = " .. complex)
 
 print("\n--- Testing math_consumer (depends on test_plugin) ---")
+
+local mod = require("plugins.test_plugin.plugin")
+print("Type of cpp_multiply:", type(mod.cpp_multiply))
 local square = math_consumer.square(6)
 print("math_consumer.square(6) = " .. square)
 

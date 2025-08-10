@@ -8,7 +8,8 @@
 					"build" : ".",
 					"childIndexes" : 
 					[
-						1
+						1,
+						2
 					],
 					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
@@ -34,6 +35,21 @@
 					"source" : "plugins/test_plugin",
 					"targetIndexes" : 
 					[
+						2
+					]
+				},
+				{
+					"build" : "plugins/math_consumer",
+					"jsonFile" : "directory-plugins.math_consumer-Debug-32f05c8e69d0079eb5a3.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "plugins/math_consumer",
+					"targetIndexes" : 
+					[
 						1
 					]
 				}
@@ -44,7 +60,8 @@
 				{
 					"childIndexes" : 
 					[
-						1
+						1,
+						2
 					],
 					"directoryIndexes" : 
 					[
@@ -65,6 +82,18 @@
 					"parentIndex" : 0,
 					"targetIndexes" : 
 					[
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2
+					],
+					"name" : "math_consumer_plugin",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
 						1
 					]
 				}
@@ -77,6 +106,13 @@
 					"jsonFile" : "target-MapperScript-Debug-7e2c2832a61a5d40413d.json",
 					"name" : "MapperScript",
 					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "math_consumer_plugin::@db9abd2acba46f3d9e2f",
+					"jsonFile" : "target-math_consumer_plugin-Debug-70475172cc8201b05427.json",
+					"name" : "math_consumer_plugin",
+					"projectIndex" : 2
 				},
 				{
 					"directoryIndex" : 1,

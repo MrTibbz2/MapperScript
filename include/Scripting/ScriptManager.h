@@ -63,7 +63,7 @@ public:
     const sol::state& lua_state();
     
     // Non-const access for plugin context calls
-    sol::state& lua_state_mutable() { return lua_; }
+    sol::state_view& sol_state() { return lua_; }
 
     template<typename Func>
     void bind_function(const std::string& name, Func&& func) {
