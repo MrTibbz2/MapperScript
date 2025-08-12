@@ -106,16 +106,14 @@ std::future<void> ScriptManager::run_script(const fs::path& path)
 
     Exec_running = true;
     // Capture the sol::load_result by value to ensure it's valid in the new thread
-    return std::async(std::launch::async, [this, script_to_run = std::move(it->second)]() mutable {
-        try {
-            // Execute the loaded script
-            sol::protected_function_result result = script_to_run();
+    return std::async(std::launch::async, [this, path]() {
+        auto it = loaded_scripts_.find(path);
+        if (it != loaded_scripts_.end()) {
+            sol::protected_function_result result = it->second();
             if (!result.valid()) {
                 sol::error err = result;
                 std::cerr << "Lua script execution error: " << err.what() << "\n";
             }
-        } catch (const std::exception& e) {
-            std::cerr << "Exception during script execution: " << e.what() << "\n";
         }
         Exec_running = false;
     });
@@ -250,8 +248,8 @@ bool ScriptManager::reload_script(const fs::path& path) {
             return false;
         }
 
-        loaded_scripts_.erase(path);
-        loaded_scripts_.emplace(path, std::move(script));
+
+        loaded_scripts_[path] = std::move(script);
 
         // file_watch_times_.erase(path);
         // file_watch_times_.emplace(path, std::filesystem::last_write_time(path)); causes segfault.

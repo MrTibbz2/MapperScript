@@ -65,6 +65,7 @@ bool PluginManager::loadPluginMetadata(const fs::path& pluginDir) const
     fs::path json_input_path = pluginDir / "metadata.json";
 
     auto setDefaultPlugin = [&]() {
+        std::cout << "Setting default plugin: " << newPlugin.lib_path << '\n';
         newPlugin.name = pluginDir.filename().string();
         newPlugin.description = "No description";
         newPlugin.version = "0.1";

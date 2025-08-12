@@ -19,14 +19,19 @@
     PluginMgr.loadPluginsFromDir("plugins", ScriptMgr);
 
     // Run script after plugins are loaded
-    std::future Script_Exec = ScriptMgr.run_script(testScriptPath);
+
 
 
 
     while (true)
     {
-        //ScriptMgr.print_fileTimes();
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::string input;
+        std::cout << "loaded. please press 1 to run script.\n";
+        std::cin >> input;
+        if (input == "1")
+        {
+            ScriptMgr.run_script(testScriptPath);
+        }
     }
 
     ScriptMgr.stop_watcher_thread();
