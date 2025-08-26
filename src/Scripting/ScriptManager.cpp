@@ -5,11 +5,9 @@
 
 #include <chrono>
 #include <iostream>
-#include <format>
 #include <string_view>
 #include <fstream> // For std::ifstream and std::ofstream
 #include <iomanip> // For std::setw
-#include <functional> // For std::ref
 #include <nlohmann/json.hpp> // For JSON config serialization
 #include <future> // For std::async and std::future
 

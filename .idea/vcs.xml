@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/Crow" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/openssl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vendored/zlib" vcs="Git" />
   </component>
 </project>

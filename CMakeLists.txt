@@ -51,7 +51,7 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 # --- Link Lua 5.4 dynamically ---
 if(PLATFORM_LINUX)
-    # Link to shared Lua library  
+    # Link to shared Lua library
 
 
     target_link_libraries(${PROJECT_NAME}
