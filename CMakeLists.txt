@@ -80,3 +80,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE SOL_ALL_SAFETIES_ON=1)
 
 add_subdirectory(plugins/test_plugin)
 add_subdirectory(plugins/math_consumer)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wno-deprecated-literal-operator)
+endif()

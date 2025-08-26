@@ -6,7 +6,7 @@
 #include "crow/crow_all.h"
 class WebManager {
 public:
-    WebInterface(const uint16_t port = 18080)
+    WebManager(const uint16_t port = 18080)
         : port_(port)
     {
         // Define your routes here
@@ -21,18 +21,39 @@ public:
         // Add more routes as member functions or lambdas
     }
 
-    // Start the server, blocks until stopped
-    void run() {
-        app_.port(port_).multithreaded().run();
+
+
+    // Start server in a separate thread
+    void run_async()
+    {
+        if (running_) return;
+        running_ = true;
+        serverThread_ = std::thread([this](){
+            app_.port(port_).multithreaded().run();
+        });
     }
 
-    // You could add stop(), async run(), etc. as needed
+    // Stop server
+    void stop()
+    {
+        if (!running_) return;
+        app_.stop();           // requires Crow >=1.2
+        if (serverThread_.joinable())
+            serverThread_.join();
+        running_ = false;
+    }
 
 private:
     crow::SimpleApp app_;
     uint16_t port_;
+    std::thread serverThread_;
+    std::atomic<bool> running_;
 
     static crow::response handleRoot(const crow::request& /*req*/) {
         return crow::response(200, "MapperScript Web Interface is up!");
+    }
+    static crow::response handleStatus(const crow::request& /*req8*/)
+    {
+        return crow::response(200, "MapperScript Web Interface is yeah!");
     }
 };
