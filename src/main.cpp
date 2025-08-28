@@ -45,5 +45,5 @@
     ScriptMgr.stop_watcher_thread();
     WebMgr.stop();
     
-    std::exit(0);  // Force immediate exit, skip destructors
+    std::exit(0);  // Force immediate exit, skip destructors, just blow it all up instead. note: os may explode.
 }
