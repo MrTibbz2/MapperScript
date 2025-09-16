@@ -90,9 +90,9 @@ public:
         }
         std::cout << "[ScriptManager] Setting function " << name << " in namespace " << ns << "\n";
         table.set_function(name, std::forward<Func>(func));
-        
+
         // Debug: Verify the function was set
-        sol::function check = table[name];
+        const sol::function check = table[name];
         std::cout << "[ScriptManager] Verification - " << ns << "." << name << " valid: " << (check.valid() ? "YES" : "NO") << "\n";
     }
 

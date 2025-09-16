@@ -42,7 +42,7 @@ include_directories(
 # --- Link library directory ---
 if(PLATFORM_WINDOWS EQUAL ON)
     link_directories(${CMAKE_SOURCE_DIR}/vendored/lua)
-elseif(PLATFORM_LINUX EQUAL ON)
+elseif(PLATFORM_LINUX)
 
     link_directories(${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR})
 elseif(PLATFORM_OSX EQUAL ON)

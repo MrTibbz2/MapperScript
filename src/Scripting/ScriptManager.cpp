@@ -35,14 +35,16 @@ ScriptManager::SMInitResult ScriptManager::init()
 {
     try
     {
-        lua_.open_libraries(sol::lib::base, sol::lib::package); // Load basic Lua libraries
+        std::cout << "[ScriptManager] Initializing Lua state...\n";
+        lua_.open_libraries(sol::lib::base, sol::lib::package);
+        std::cout << "[ScriptManager] Lua state initialized successfully\n";
     } catch (const std::exception& e)
     {
         std::cout << "init failed: " << e.what() << std::endl;
         return SMInitResult::FAILURE;
     }
     return SMInitResult::SUCCESS;
-};
+}
 
 // Loads a Lua script from the given path and keeps it ready to run
 ScriptManager::SMLoadResult ScriptManager::load_script(const fs::path& path)
