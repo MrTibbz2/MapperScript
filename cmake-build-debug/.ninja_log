@@ -1,0 +1,11 @@
+# ninja log v5
+1	4	0	/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/CMakeFiles/cmake.verify_globs	bdbfcd4b3efa6bff
+6	14341	1758005557950384994	plugins/test_plugin/CMakeFiles/plugin.dir/src/test_plugin.cpp.o	b8aadc7aed9616ea
+14343	14575	1758005558179385850	plugins/test_plugin/plugin.so	daa7424be32bda30
+5	15022	1758005558630387536	CMakeFiles/MapperScript.dir/src/plugins/pluginLoader.cpp.o	6c5b2e9d16274b84
+7	15841	1758005559453390613	plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir/src/math_consumer.cpp.o	c53792aeae4c79b4
+15842	16026	1758005559627391264	plugins/math_consumer/plugin.so	90d40a1f98c8f815
+4	19083	1758005562679402674	CMakeFiles/MapperScript.dir/src/Scripting/ScriptManager.cpp.o	25c36a25b2a3b0f0
+5	21783	1758005565389412807	CMakeFiles/MapperScript.dir/src/webInterface/webinterface.cpp.o	1bc00fda98eb9e20
+5	23639	1758005567237419717	CMakeFiles/MapperScript.dir/src/main.cpp.o	c8ce9510ee8eb751
+23639	23870	1758005567476420611	MapperScript	7e649c0cfe41ea35

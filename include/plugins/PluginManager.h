@@ -12,7 +12,7 @@
 #include "Scripting/ScriptManager.h"
 #include <utility>
 #include <dynalo.hpp>
-
+#include <iostream>
 #include <nlohmann/json.hpp>
 
 #include "nlohmann/json.hpp"

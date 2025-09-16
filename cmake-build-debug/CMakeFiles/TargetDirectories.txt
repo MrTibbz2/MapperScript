@@ -1,0 +1,9 @@
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/CMakeFiles/MapperScript.dir
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/plugins/test_plugin/CMakeFiles/plugin.dir
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/plugins/test_plugin/CMakeFiles/edit_cache.dir
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/plugins/test_plugin/CMakeFiles/rebuild_cache.dir
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/plugins/math_consumer/CMakeFiles/math_consumer_plugin.dir
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/plugins/math_consumer/CMakeFiles/edit_cache.dir
+/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/plugins/math_consumer/CMakeFiles/rebuild_cache.dir

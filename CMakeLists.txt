@@ -95,7 +95,11 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/scripts" "${CMAKE_CURRENT_BINARY_DIR}/scripts")
 # --- Sol2 compile flags ---
-target_compile_definitions(${PROJECT_NAME} PRIVATE SOL_ALL_SAFETIES_ON=1)
+target_compile_definitions(${PROJECT_NAME} PRIVATE 
+    SOL_ALL_SAFETIES_ON=0
+    SOL_NO_EXCEPTIONS=0
+    SOL_SAFE_USERTYPE=1
+)
 
 add_subdirectory(plugins/test_plugin)
 add_subdirectory(plugins/math_consumer)
