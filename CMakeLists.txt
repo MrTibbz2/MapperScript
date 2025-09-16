@@ -31,13 +31,19 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
 # --- Include directories ---
 include_directories(
         ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/vendored/lua/include
-        ${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}/include
-        ${CMAKE_SOURCE_DIR}/vendored/osx_lua/include
         ${CMAKE_SOURCE_DIR}/vendored/sol2/include
         ${CMAKE_SOURCE_DIR}/vendored/dynalo/include
         ${CMAKE_SOURCE_DIR}/vendored/jsonrpccxx
 )
+
+# Add platform-specific Lua includes if they exist
+if(EXISTS "${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}/include")
+    include_directories(${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}/include)
+elseif(EXISTS "${CMAKE_SOURCE_DIR}/vendored/lua/include")
+    include_directories(${CMAKE_SOURCE_DIR}/vendored/lua/include)
+elseif(EXISTS "${CMAKE_SOURCE_DIR}/vendored/osx_lua/include")
+    include_directories(${CMAKE_SOURCE_DIR}/vendored/osx_lua/include)
+endif()
 
 # --- Link library directory ---
 if(PLATFORM_WINDOWS EQUAL ON)
@@ -54,13 +60,23 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 # --- Link Lua 5.4 dynamically ---
 if(PLATFORM_LINUX)
-    # Link to shared Lua library
-
-
-    target_link_libraries(${PROJECT_NAME}
-            PRIVATE
-            ${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}/liblua54.so
-            dl)
+    # Check if vendored Lua library exists for this architecture
+    set(VENDORED_LUA_PATH "${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}/liblua54.so")
+    if(EXISTS "${VENDORED_LUA_PATH}")
+        message(STATUS "Using vendored Lua library: ${VENDORED_LUA_PATH}")
+        target_link_libraries(${PROJECT_NAME} PRIVATE "${VENDORED_LUA_PATH}" dl)
+        # Set RPATH so executable can find the Lua library at runtime
+        set_target_properties(${PROJECT_NAME} PROPERTIES
+            INSTALL_RPATH "${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}"
+            BUILD_WITH_INSTALL_RPATH TRUE
+        )
+    else()
+        message(STATUS "Vendored Lua not found for ${CMAKE_SYSTEM_PROCESSOR}, using system Lua")
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(LUA REQUIRED lua5.4)
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${LUA_LIBRARIES} dl)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIRS})
+    endif()
 
 elseif(PLATFORM_OSX)
     # Link to shared Lua library
