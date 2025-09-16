@@ -48,6 +48,12 @@ public:
     // Executes a loaded script by its path (only one runs at a time)
     std::future<void> run_script(const std::filesystem::path& path);
 
+    SMLoadResult load_script(const std::string& name, const std::string& content); // For web uploads
+
+    std::future<void> run_script(const std::string& name); // Run by name
+
+    bool script_exists(const std::string& name) const; // Check by name
+
     // Saves loaded script paths to disk so they can be restored later
     bool save_loaded_scripts(const std::filesystem::path& json_out_path = "scripts.json") const;
 
@@ -114,7 +120,13 @@ private:
 
 
     std::unordered_map<std::filesystem::path, sol::load_result> loaded_scripts_; // Loaded script cache
+
+    std::unordered_map<std::string, std::filesystem::path> script_names_; // name → path mapping. messy but I dont wanna redesign the codebase.
+
     std::unordered_map<std::filesystem::path, std::filesystem::file_time_type> file_watch_times_; // Hot reload tracking
+    using ScriptContentMap = std::unordered_map<std::filesystem::path, std::string>;
+    std::unique_ptr<ScriptContentMap> script_content_ = std::make_unique<ScriptContentMap>();
+    // again. should be a struct for all the data. but it started this way and im lazy. whatever.
 };
 
 

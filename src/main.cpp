@@ -5,10 +5,11 @@
 #include "MapperEngine.h"
 #include "webInterface/webinterface.h"
 #include <cstdlib>
+
 [[noreturn]] int main() {
 
 
-    const std::string testScriptPath = "scripts/script.lua";
+    const std::string testScriptPath = "./scripts/script.lua";
     ScriptManager ScriptMgr;
     ScriptMgr.init();
 
@@ -18,12 +19,12 @@
     const PluginManager PluginMgr;
     PluginMgr.loadPluginsFromDir("plugins", ScriptMgr);
 
-    // Run script after plugins are loaded
-    WebManager WebMgr;
 
-    WebMgr.run_async();   // run blocking in a separate thread
-
-
+    WebManager WebMgr(ScriptMgr, PluginMgr);
+    //
+    //
+    //
+    // WebMgr.run_async();
 
     while (true)
     {
@@ -43,7 +44,8 @@
     }
     std::cout << "terminating watcher thread.\n";
     ScriptMgr.stop_watcher_thread();
-    WebMgr.stop();
+
     
-    std::exit(0);  // Force immediate exit, skip destructors, just blow it all up instead. note: os may explode.
+    std::exit(0);  // Force immediate exit, skip destructors.
+    // this is used because im lazy, but also because plugins shouldn't keep persistent data, and if they do they should sync it manually.
 }

@@ -14,17 +14,15 @@
 namespace fs = std::filesystem; // Alias for std::filesystem
 std::string FileTimeTypeToString(const std::filesystem::file_time_type& ftime) {
     // Convert file_time_type to system_clock::time_point (C++20)
-    auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+    const auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
 
     // Convert to time_t for formatting
-    std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+    const std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
 
-    // Convert to tm structure
-    std::tm* timeinfo = std::localtime(&cftime);
 
     // Format time to string
-    std::ostringstream oss;
-    if (timeinfo) {
+    if (std::tm* timeinfo = std::localtime(&cftime)) {
+        std::ostringstream oss;
         oss << std::put_time(timeinfo, "%Y-%m-%d %H:%M:%S");
         return oss.str();
     } else {
@@ -230,6 +228,47 @@ const sol::state& ScriptManager::lua_state()
 
 
 
+
+// Run script by name
+std::future<void> ScriptManager::run_script(const std::string& name) {
+    auto it = script_names_.find(name);
+    if (it == script_names_.end()) {
+        std::cerr << "Script not found by name: " << name << "\n";
+        return std::future<void>(); // Return invalid future
+    }
+    return run_script(it->second); // Call the path-based version
+}
+
+// Load script by name and content
+ScriptManager::SMLoadResult ScriptManager::load_script(const std::string& name, const std::string& content) {
+    if (script_names_.contains(name)) {
+        return SMLoadResult::FILE_ALREADY_LOADED;
+    }
+    
+    try {
+        sol::load_result script = lua_.load(content);
+        if (!script.valid()) {
+            const sol::error err = script;
+            std::cerr << "Lua load error for " << name << ": " << err.what() << "\n";
+            return SMLoadResult::FILE_LOAD_ERROR;
+        }
+        
+        // Create a virtual path for the script
+        fs::path virtualPath = fs::path("virtual") / (name + ".lua");
+        loaded_scripts_.emplace(virtualPath, std::move(script));
+        script_names_[name] = virtualPath;
+        
+        return SMLoadResult::FILE_LOAD_SUCCESS;
+    } catch (const std::exception& e) {
+        std::cerr << "Exception loading script " << name << ": " << e.what() << "\n";
+        return SMLoadResult::TS_PMO;
+    }
+}
+
+// Check if script exists by name
+bool ScriptManager::script_exists(const std::string& name) const {
+    return script_names_.contains(name);
+}
 
 // Internal helper to reload a single script
 bool ScriptManager::reload_script(const fs::path& path) {

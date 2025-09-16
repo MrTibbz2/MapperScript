@@ -90,6 +90,7 @@ bool PluginManager::loadPluginMetadata(const fs::path& pluginDir) const
             }
 
             newPlugin.name = metadata.value("name", pluginDir.filename().string());
+
             newPlugin.version = metadata.value("version", "0.0.0");
             newPlugin.description = metadata.value("description", "N/A");
             newPlugin.dependencies = metadata.value("dependencies", json::array());

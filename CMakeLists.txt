@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.15)
 project(MapperScript LANGUAGES CXX)
 
 # Platform-specific flags
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
 option(PLATFORM_LINUX "Set if building for Linux" OFF)
 option(PLATFORM_WINDOWS "Set if building for Windows" OFF)
 option(PLATFORM_OSX "set if building on osx" OFF)
@@ -31,17 +32,19 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
 include_directories(
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/vendored/lua/include
-        ${CMAKE_SOURCE_DIR}/vendored/linux_lua/include
+        ${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}/include
         ${CMAKE_SOURCE_DIR}/vendored/osx_lua/include
         ${CMAKE_SOURCE_DIR}/vendored/sol2/include
         ${CMAKE_SOURCE_DIR}/vendored/dynalo/include
+        ${CMAKE_SOURCE_DIR}/vendored/jsonrpccxx
 )
 
 # --- Link library directory ---
 if(PLATFORM_WINDOWS EQUAL ON)
     link_directories(${CMAKE_SOURCE_DIR}/vendored/lua)
 elseif(PLATFORM_LINUX EQUAL ON)
-    link_directories(${CMAKE_SOURCE_DIR}/vendored/linux_lua)
+
+    link_directories(${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR})
 elseif(PLATFORM_OSX EQUAL ON)
     link_directories(${CMAKE_SOURCE_DIR}/vendored/osx_lua)
 endif()
@@ -56,7 +59,7 @@ if(PLATFORM_LINUX)
 
     target_link_libraries(${PROJECT_NAME}
             PRIVATE
-            ${CMAKE_SOURCE_DIR}/vendored/linux_lua/liblua54.so
+            ${CMAKE_SOURCE_DIR}/vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}/liblua54.so
             dl)
 
 elseif(PLATFORM_OSX)

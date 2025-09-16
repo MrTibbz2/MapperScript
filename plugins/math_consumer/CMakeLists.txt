@@ -17,7 +17,7 @@ add_library(math_consumer_plugin SHARED ${SOURCES})
 target_include_directories(math_consumer_plugin PRIVATE
         ../../include                           # Only main app headers (for pluginContext)
         ../../vendored/lua/include             # Windows Lua headers
-        ../../vendored/linux_lua/include       # Linux Lua headers
+        ../../vendored/linux_lua/x86_64/include       # Linux Lua headers
         ../../vendored/osx_lua/include         # macOS Lua headers
         ../../vendored/sol2/include            # Sol2 headers (needed for pluginContext)
 )
