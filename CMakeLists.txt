@@ -8,6 +8,7 @@ project(MapperScript LANGUAGES CXX)
 option(PLATFORM_LINUX "Set if building for Linux" OFF)
 option(PLATFORM_WINDOWS "Set if building for Windows" OFF)
 option(PLATFORM_OSX "set if building on osx" OFF)
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "Detected Linux OS")
