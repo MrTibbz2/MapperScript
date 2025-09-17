@@ -203,6 +203,10 @@ public:
         return false;
 
     }
+    
+    [[nodiscard]] const std::vector<plugin>& GetAllPlugins() const {
+        return *loadedPlugins;
+    }
     bool loadPluginMetadata(const std::filesystem::path& pluginDir) const;
     static bool loadPluginLibrary(const plugin& newPlugin, ScriptManager& sm);
 

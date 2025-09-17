@@ -38,7 +38,11 @@ public:
         TS_PMO
 
     };
-
+    struct Script {
+        std::string name;
+        std::filesystem::path path;
+        std::string content;
+    };
 
     SMInitResult init();
 
@@ -49,11 +53,14 @@ public:
     // Executes a loaded script by its path (only one runs at a time)
     std::future<void> run_script(const std::filesystem::path& path);
 
-    SMLoadResult load_script(const std::string& name, const std::string& content); // For web uploads
+    SMLoadResult load_script(const std::string& path, const std::string& content); // For web uploads
 
     std::future<void> run_script(const std::string& name); // Run by name
 
     bool script_exists(const std::string& name) const; // Check by name
+    
+    // Update script content and reload
+    SMLoadResult update_script(const std::filesystem::path& path, const std::string& content);
 
     // Saves loaded script paths to disk so they can be restored later
     bool save_loaded_scripts(const std::filesystem::path& json_out_path = "scripts.json") const;
@@ -106,7 +113,26 @@ public:
 
     }
 
+    std::vector<Script> GetScripts() {
+        std::vector<Script> scripts;
+        for (const auto& pair : script_names_) {
+            if (!script_exists(pair.second)) {
+                std::cout << "[ScriptManager] no script for name: " << pair.second << "\n";
+                continue;
+            }
+            Script script;
+            script.name = pair.second;
+            script.path = pair.first;
+            script.content = "";
+            if (auto it = script_content_->find(pair.first); it != script_content_->end()) {
+                script.content = it->second;
+            }
+            scripts.push_back(script);
 
+        }
+        return scripts;
+
+    }
 
 private:
 

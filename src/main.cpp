@@ -24,7 +24,7 @@
     //
     //
     //
-    // WebMgr.run_async();
+    WebMgr.run_async();
 
     while (true)
     {
@@ -34,7 +34,8 @@
         std::cin >> input;
         if (input == "1")
         {
-            ScriptMgr.run_script(testScriptPath);
+            // ScriptMgr.run_script(testScriptPath);
+            WebMgr.wsLog("yoooo\n");
         }
         if (input == "2")
         {

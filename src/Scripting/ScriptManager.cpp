@@ -93,21 +93,20 @@ std::future<void> ScriptManager::run_script(const fs::path& path)
 {
     if (Exec_running) {
         std::cerr << "A script is already running. Only one script can run at a time.\n";
-        return std::future<void>(); // Return an invalid future
+        return {}; // Return an invalid future
     }
 
     auto it = loaded_scripts_.find(path);
     if (it == loaded_scripts_.end()) {
         std::cerr << "Script not loaded: " << path << "\n";
-        return std::future<void>(); // Return an invalid future
+        return {}; // Return an invalid future
     }
 
     Exec_running = true;
     // Capture the sol::load_result by value to ensure it's valid in the new thread
     return std::async(std::launch::async, [this, path]() {
-        auto it = loaded_scripts_.find(path);
-        if (it != loaded_scripts_.end()) {
-            sol::protected_function_result result = it->second();
+        if (auto it = loaded_scripts_.find(path); it != loaded_scripts_.end()) {
+            const sol::protected_function_result result = it->second();
             if (!result.valid()) {
                 sol::error err = result;
                 std::cerr << "Lua script execution error: " << err.what() << "\n";
@@ -236,14 +235,15 @@ std::future<void> ScriptManager::run_script(const std::string& name) {
     auto it = script_names_.find(name);
     if (it == script_names_.end()) {
         std::cerr << "Script not found by name: " << name << "\n";
-        return std::future<void>(); // Return invalid future
+        return {}; // Return invalid future
     }
     return run_script(it->second); // Call the path-based version
 }
 
-// Load script by name and content
-ScriptManager::SMLoadResult ScriptManager::load_script(const std::string& name, const std::string& content) {
-    if (script_names_.contains(name)) {
+// Load script by path and content
+ScriptManager::SMLoadResult ScriptManager::load_script(const std::string& path, const std::string& content) {
+    fs::path scriptPath(path);
+    if (loaded_scripts_.contains(scriptPath)) {
         return SMLoadResult::FILE_ALREADY_LOADED;
     }
     
@@ -251,18 +251,17 @@ ScriptManager::SMLoadResult ScriptManager::load_script(const std::string& name, 
         sol::load_result script = lua_.load(content);
         if (!script.valid()) {
             const sol::error err = script;
-            std::cerr << "Lua load error for " << name << ": " << err.what() << "\n";
+            std::cerr << "Lua load error for " << path << ": " << err.what() << "\n";
             return SMLoadResult::FILE_LOAD_ERROR;
         }
         
-        // Create a virtual path for the script
-        fs::path virtualPath = fs::path("virtual") / (name + ".lua");
-        loaded_scripts_.emplace(virtualPath, std::move(script));
-        script_names_[name] = virtualPath;
+        // Use client path directly
+        loaded_scripts_.emplace(scriptPath, std::move(script));
+        (*script_content_)[scriptPath] = content;
         
         return SMLoadResult::FILE_LOAD_SUCCESS;
     } catch (const std::exception& e) {
-        std::cerr << "Exception loading script " << name << ": " << e.what() << "\n";
+        std::cerr << "Exception loading script " << path << ": " << e.what() << "\n";
         return SMLoadResult::TS_PMO;
     }
 }
@@ -270,6 +269,26 @@ ScriptManager::SMLoadResult ScriptManager::load_script(const std::string& name, 
 // Check if script exists by name
 bool ScriptManager::script_exists(const std::string& name) const {
     return script_names_.contains(name);
+}
+
+// Update script content and reload
+ScriptManager::SMLoadResult ScriptManager::update_script(const fs::path& path, const std::string& content) {
+    try {
+        sol::load_result script = lua_.load(content);
+        if (!script.valid()) {
+            const sol::error err = script;
+            std::cerr << "Script update error: " << err.what() << "\n";
+            return SMLoadResult::FILE_LOAD_ERROR;
+        }
+        
+        loaded_scripts_[path] = std::move(script);
+        (*script_content_)[path] = content;
+        
+        return SMLoadResult::FILE_LOAD_SUCCESS;
+    } catch (const std::exception& e) {
+        std::cerr << "Exception updating script: " << e.what() << "\n";
+        return SMLoadResult::TS_PMO;
+    }
 }
 
 // Internal helper to reload a single script
