@@ -1,0 +1,4 @@
+Cannot generate into /home/ubuntu/CLionProjects/MapperScript/cmake-build-debug
+It was created with incompatible generator 'Ninja'
+
+Please either delete it manually or select another generation directory

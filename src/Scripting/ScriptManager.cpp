@@ -14,17 +14,15 @@
 namespace fs = std::filesystem; // Alias for std::filesystem
 std::string FileTimeTypeToString(const std::filesystem::file_time_type& ftime) {
     // Convert file_time_type to system_clock::time_point (C++20)
-    auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+    const auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
 
     // Convert to time_t for formatting
-    std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+    const std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
 
-    // Convert to tm structure
-    std::tm* timeinfo = std::localtime(&cftime);
 
     // Format time to string
-    std::ostringstream oss;
-    if (timeinfo) {
+    if (std::tm* timeinfo = std::localtime(&cftime)) {
+        std::ostringstream oss;
         oss << std::put_time(timeinfo, "%Y-%m-%d %H:%M:%S");
         return oss.str();
     } else {
@@ -37,14 +35,16 @@ ScriptManager::SMInitResult ScriptManager::init()
 {
     try
     {
-        lua_.open_libraries(sol::lib::base, sol::lib::package); // Load basic Lua libraries
+        std::cout << "[ScriptManager] Initializing Lua state...\n";
+        lua_.open_libraries(sol::lib::base, sol::lib::package);
+        std::cout << "[ScriptManager] Lua state initialized successfully\n";
     } catch (const std::exception& e)
     {
         std::cout << "init failed: " << e.what() << std::endl;
         return SMInitResult::FAILURE;
     }
     return SMInitResult::SUCCESS;
-};
+}
 
 // Loads a Lua script from the given path and keeps it ready to run
 ScriptManager::SMLoadResult ScriptManager::load_script(const fs::path& path)
@@ -93,21 +93,20 @@ std::future<void> ScriptManager::run_script(const fs::path& path)
 {
     if (Exec_running) {
         std::cerr << "A script is already running. Only one script can run at a time.\n";
-        return std::future<void>(); // Return an invalid future
+        return {}; // Return an invalid future
     }
 
     auto it = loaded_scripts_.find(path);
     if (it == loaded_scripts_.end()) {
         std::cerr << "Script not loaded: " << path << "\n";
-        return std::future<void>(); // Return an invalid future
+        return {}; // Return an invalid future
     }
 
     Exec_running = true;
     // Capture the sol::load_result by value to ensure it's valid in the new thread
     return std::async(std::launch::async, [this, path]() {
-        auto it = loaded_scripts_.find(path);
-        if (it != loaded_scripts_.end()) {
-            sol::protected_function_result result = it->second();
+        if (auto it = loaded_scripts_.find(path); it != loaded_scripts_.end()) {
+            const sol::protected_function_result result = it->second();
             if (!result.valid()) {
                 sol::error err = result;
                 std::cerr << "Lua script execution error: " << err.what() << "\n";
@@ -230,6 +229,67 @@ const sol::state& ScriptManager::lua_state()
 
 
 
+
+// Run script by name
+std::future<void> ScriptManager::run_script(const std::string& name) {
+    auto it = script_names_.find(name);
+    if (it == script_names_.end()) {
+        std::cerr << "Script not found by name: " << name << "\n";
+        return {}; // Return invalid future
+    }
+    return run_script(it->second); // Call the path-based version
+}
+
+// Load script by path and content
+ScriptManager::SMLoadResult ScriptManager::load_script(const std::string& path, const std::string& content) {
+    fs::path scriptPath(path);
+    if (loaded_scripts_.contains(scriptPath)) {
+        return SMLoadResult::FILE_ALREADY_LOADED;
+    }
+    
+    try {
+        sol::load_result script = lua_.load(content);
+        if (!script.valid()) {
+            const sol::error err = script;
+            std::cerr << "Lua load error for " << path << ": " << err.what() << "\n";
+            return SMLoadResult::FILE_LOAD_ERROR;
+        }
+        
+        // Use client path directly
+        loaded_scripts_.emplace(scriptPath, std::move(script));
+        (*script_content_)[scriptPath] = content;
+        
+        return SMLoadResult::FILE_LOAD_SUCCESS;
+    } catch (const std::exception& e) {
+        std::cerr << "Exception loading script " << path << ": " << e.what() << "\n";
+        return SMLoadResult::TS_PMO;
+    }
+}
+
+// Check if script exists by name
+bool ScriptManager::script_exists(const std::string& name) const {
+    return script_names_.contains(name);
+}
+
+// Update script content and reload
+ScriptManager::SMLoadResult ScriptManager::update_script(const fs::path& path, const std::string& content) {
+    try {
+        sol::load_result script = lua_.load(content);
+        if (!script.valid()) {
+            const sol::error err = script;
+            std::cerr << "Script update error: " << err.what() << "\n";
+            return SMLoadResult::FILE_LOAD_ERROR;
+        }
+        
+        loaded_scripts_[path] = std::move(script);
+        (*script_content_)[path] = content;
+        
+        return SMLoadResult::FILE_LOAD_SUCCESS;
+    } catch (const std::exception& e) {
+        std::cerr << "Exception updating script: " << e.what() << "\n";
+        return SMLoadResult::TS_PMO;
+    }
+}
 
 // Internal helper to reload a single script
 bool ScriptManager::reload_script(const fs::path& path) {

@@ -17,7 +17,7 @@ add_library(plugin SHARED ${SOURCES})
 target_include_directories(plugin PRIVATE
         ../../include                           # Only main app headers (for pluginContext)
         ../../vendored/lua/include             # Windows Lua headers
-        ../../vendored/linux_lua/include       # Linux Lua headers
+        ../../vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}/include       # Linux Lua headers
         ../../vendored/osx_lua/include         # macOS Lua headers
         ../../vendored/sol2/include            # Sol2 headers (needed for pluginContext)
 )
@@ -31,7 +31,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Link against shared Lua library in main app directory
     target_link_directories(plugin PRIVATE
-            "${CMAKE_CURRENT_SOURCE_DIR}/../../vendored/linux_lua")
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../vendored/linux_lua/${CMAKE_SYSTEM_PROCESSOR}")
     target_link_libraries(plugin PRIVATE lua54)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")

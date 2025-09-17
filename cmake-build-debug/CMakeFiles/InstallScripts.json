@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/cmake_install.cmake",
+		"/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/plugins/test_plugin/cmake_install.cmake",
+		"/home/ubuntu/CLionProjects/MapperScript/cmake-build-debug/plugins/math_consumer/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -12,7 +12,7 @@
 #include "Scripting/ScriptManager.h"
 #include <utility>
 #include <dynalo.hpp>
-
+#include <iostream>
 #include <nlohmann/json.hpp>
 
 #include "nlohmann/json.hpp"
@@ -202,6 +202,10 @@ public:
         }
         return false;
 
+    }
+    
+    [[nodiscard]] const std::vector<plugin>& GetAllPlugins() const {
+        return *loadedPlugins;
     }
     bool loadPluginMetadata(const std::filesystem::path& pluginDir) const;
     static bool loadPluginLibrary(const plugin& newPlugin, ScriptManager& sm);
