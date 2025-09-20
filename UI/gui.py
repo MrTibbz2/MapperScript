@@ -173,7 +173,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#060708 0%,#0b0
 <body>
 <div class="container">
   <div class="sidebar card">
-    <div class="brand">MapperScript — Minimal UI</div>
+    <div class="brand">MapperScript</div>
     <div class="nav">
       <button id="tab-plugins" class="btn active">Plugins</button>
       <button id="tab-scripts" class="btn">Scripts</button>
@@ -181,7 +181,7 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#060708 0%,#0b0
     </div>
     <div style="flex:1"></div>
     <div class="small">Status: <span id="status-text">connecting...</span></div>
-    <div class="footer">Built for MapperScript — dark, minimal, single page</div>
+    <div class="footer">2025 - Lachlan McKenna</div>
   </div>
 
   <div class="main">
@@ -399,23 +399,37 @@ el('clear-logs').addEventListener('click', async ()=>{
 function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; }); }
 function escapeJs(s){ return (s+'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
-// Initialisation
-async function init(){
-  // show status
+// Status checking
+let statusPoll = null;
+async function checkStatus(){
   try{
     const st = await call('get_status');
-    if(st.ok && st.result && st.result.result){ el('status-text').textContent = st.result.result.status || 'ok'; }
-    else if(st.ok && st.result.status){ el('status-text').textContent = st.result.status; }
-    else el('status-text').textContent = 'connected';
-  }catch(e){ el('status-text').textContent = 'offline'; }
+    if(st.ok && st.result){
+      const status = st.result.result?.status || st.result.status || 'running';
+      el('status-text').textContent = status;
+      el('status-text').style.color = status === 'running' ? 'var(--accent)' : 'var(--muted)';
+    } else {
+      el('status-text').textContent = 'error';
+      el('status-text').style.color = 'var(--danger)';
+    }
+  }catch(e){
+    el('status-text').textContent = 'offline';
+    el('status-text').style.color = 'var(--danger)';
+  }
+}
 
+// Initialisation
+async function init(){
+  await checkStatus();
   await loadPlugins();
   await loadScripts();
   await loadLogs();
 
-  // Poll logs frequently
+  // Poll logs and status
   if(logsPoll) clearInterval(logsPoll);
+  if(statusPoll) clearInterval(statusPoll);
   logsPoll = setInterval(loadLogs, 1200);
+  statusPoll = setInterval(checkStatus, 3000);
 }
 
 // Start
