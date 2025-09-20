@@ -258,6 +258,7 @@ ScriptManager::SMLoadResult ScriptManager::load_script(const std::string& path, 
         // Use client path directly
         loaded_scripts_.emplace(scriptPath, std::move(script));
         (*script_content_)[scriptPath] = content;
+        script_names_[scriptPath] = path;
         
         return SMLoadResult::FILE_LOAD_SUCCESS;
     } catch (const std::exception& e) {
