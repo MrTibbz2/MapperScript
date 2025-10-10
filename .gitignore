@@ -1,0 +1,4 @@
+build
+__pycache__
+cmake-build-debug
+cmake-build-release
